@@ -1,8 +1,6 @@
 package Chat;
 
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -31,7 +29,6 @@ public class Peer implements Runnable {
         }
     }
 
-    @Nullable
     private String receiveMsg() {
         try {
             return dis.readUTF();
@@ -68,10 +65,17 @@ public class Peer implements Runnable {
         return false;
     }
 
+    private boolean readerProcess() {
+
+        return false;
+    }
+
     @Override
     public void run() {
         Thread inputThread = new Thread(() -> {
-
+            while (true) {
+                if (!readerProcess()) break;
+            }
         });
         while (_socket.isConnected()) {
             if (!processMsg(receiveMsg())) break;

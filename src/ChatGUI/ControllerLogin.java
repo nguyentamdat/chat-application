@@ -36,37 +36,31 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
+
 import javafx.scene.control.TextField;
 
 public class ControllerLogin implements Initializable{
     @FXML
     Button btnLogin;
-    public AnchorPane mainSelect;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-    }
-    @FXML
-    public void onbtnLoginClick(MouseEvent e) throws Exception {
-        Button button = (Button)e.getSource();
-        System.out.println(button.getId());
-
-        System.out.println("out");
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatInterface.fxml"));
-            Parent root = fxmlLoader.load();
-            mainSelect.getChildren().setAll(root);
-            mainSelect.setTopAnchor(root, 0.0);
-            mainSelect.setBottomAnchor(root, 0.0);
-            mainSelect.setLeftAnchor(root, 0.0);
-            mainSelect.setRightAnchor(root, 0.0);
-            ControllerChatInterface controller = fxmlLoader.getController();
-        } catch (Exception er) {
-            er.printStackTrace();
-        }
+            btnLogin.setOnMouseClicked(actionEvent -> {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("BookDetails.fxml"));
+                Parent root =  fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root, 600, 400));
+                stage.show();
 
+                ControllerChatInterface controller = fxmlLoader.getController();
+
+
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 }
 
 
