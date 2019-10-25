@@ -4,6 +4,8 @@ import Chat.Chat;
 import Chat.Friend;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -21,18 +23,20 @@ import java.util.ResourceBundle;
 
 public class ControllerChatInterface implements Initializable {
     Chat user = Chat.getInstance();
+    ObservableList<Friend> listFriend;
     @FXML
     Button btnAdd;
     @FXML
     Button btnRefresh;
     @FXML
-    ListView<Friend> listFriend;
+    ListView<Friend> listViewFriend;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        listFriend.setCellFactory(lv -> new FriendCell());
-        listFriend.setItems(user.getListFriend());
-        listFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
+        listViewFriend.setCellFactory(lv -> new FriendCell());
+        listFriend = FXCollections.observableArrayList(user.getListFriend());
+        listViewFriend.setItems(listFriend);
+        listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
                 System.out.println("Selection change to " + t1.getName());
@@ -58,8 +62,8 @@ public class ControllerChatInterface implements Initializable {
     @FXML
     public void onBtnRefreshClicked(MouseEvent e) {
         try {
-            listFriend.setItems(user.getListFriend());
-            listFriend.refresh();
+            System.out.println(listFriend);
+            listFriend = FXCollections.observableArrayList(user.getListFriend());
         } catch (Exception er) {
             er.printStackTrace();
         }

@@ -6,6 +6,8 @@ import javafx.collections.ObservableList;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,7 +21,7 @@ public class Chat {
     private ConcurrentHashMap<String, Peer> peers;
     private static Chat instance;
     private Peer current;
-    private ObservableList<Friend> listFriend;
+    private List<Friend> listFriend;
 
     public void setCurrent(String name) throws Exception {
         Peer res;
@@ -120,14 +122,13 @@ public class Chat {
         //endregion
     }
 
-    public ObservableList<Friend> getListFriend() {
+    public List<Friend> getListFriend() {
         refreshListFriend();
         return listFriend;
     }
 
-    private ObservableList<Friend> refreshListFriend() {
-        ObservableList<Friend> map = FXCollections.observableArrayList(new Friend("Long", true),
-                new Friend("Khang", true));
+    private List<Friend> refreshListFriend() {
+        List<Friend> list = new ArrayList<Friend>();
         dos.println("GET");
         try {
             String res = dis.readLine();
@@ -135,13 +136,13 @@ public class Chat {
                 String[] args;
                 while (!(res = dis.readLine()).equalsIgnoreCase("END")) {
                     args = Utils.splitMsg(res);
-                    map.add(new Friend(args[0], args[1].equalsIgnoreCase("true")));
+                    list.add(new Friend(args[0], args[1].equalsIgnoreCase("true")));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return map;
+        return list;
     }
 
     public void sendMsg(String msg) {
