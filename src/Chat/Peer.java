@@ -1,21 +1,31 @@
 package Chat;
 
 import org.apache.commons.io.IOUtils;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.Queue;
+import java.util.Stack;
+import java.util.concurrent.*;
 
 public class Peer implements Runnable {
 
+    final BlockingQueue<String> pack = new LinkedBlockingQueue<>(4096);
     private Socket _socket;
     private DataInputStream dis;
     private DataOutputStream dos;
-    private volatile String inbox;
-    private volatile Map<String, File> files;
-    final BlockingQueue<String> pack = new LinkedBlockingDeque<>(4096);
+    final BlockingQueue<String> inbox = new LinkedBlockingQueue<>(4096);
+    private ConcurrentHashMap<String, File> files;
+
+    public void addFile(File file) {
+        files.put(file.getName(), file);
+    }
+
+    public File getFile(String name) {
+        return files.get(name);
+    }
 
     public Peer(Socket socket) {
         _socket = socket;
@@ -27,17 +37,27 @@ public class Peer implements Runnable {
         }
     }
 
-    private void send(String msg) {
+    private boolean send(String msg) {
         try {
             dos.writeUTF(msg);
             dos.flush();
+            return dis.readChar() == '$';
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
-    public void setInbox(String inbox) {
-        this.inbox = inbox;
+    public void addPack(String msg) {
+        pack.add(msg);
+    }
+
+    public String getInbox() {
+        return inbox.poll();
+    }
+
+    public void addInbox(String msg) {
+        inbox.add(msg);
     }
 
     private String receiveMsg() {
@@ -56,10 +76,6 @@ public class Peer implements Runnable {
             e.printStackTrace();
             return '!';
         }
-    }
-
-    public String getInbox() {
-        return inbox;
     }
 
     private void receiveFile() {
@@ -83,7 +99,10 @@ public class Peer implements Runnable {
             if (cmd == '/') {
                 String[] args = Utils.splitMsg(Objects.requireNonNull(receiveMsg()));
                 if (args[0].equalsIgnoreCase("bye")) {
-                    if (args.length > 1 && args[0].equalsIgnoreCase("msg")) setInbox(args[1]);
+                    if (args.length > 1 && args[0].equalsIgnoreCase("msg")) {
+                        addInbox(args[1]);
+                        send("$");
+                    }
                     return true;
                 }
             }
@@ -91,38 +110,22 @@ public class Peer implements Runnable {
         return false;
     }
 
-    public void sendMsg(String msg) {
-        pack.add(Utils.sendMsg(msg));
-    }
-
-    public void sendFile(String[] names) {
-        File file;
-        for (String name: names) {
-            file = new File(name);
-            files.put(file.getName(), file);
-            pack.add(Utils.sendFile(file.getName()));
-        }
-    }
-
-    public void sendFile(String name) {
-        String[] names = {name};
-        sendFile(names);
-    }
-
-    private void sendFile(File file) {
+    private boolean sendFile(File file) {
         try {
             FileInputStream fis = new FileInputStream(file);
             IOUtils.copy(fis, dos);
             dos.flush();
+            return dis.readChar() == '$';
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
     }
 
     private void sendHeaderFile(String name) {
         try {
-            dos.writeUTF("@"+name+"#");
+            dos.writeUTF("@" + name + "#");
             dos.flush();
         } catch (IOException e) {
             e.printStackTrace();

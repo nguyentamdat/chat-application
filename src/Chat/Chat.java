@@ -1,5 +1,6 @@
 package Chat;
 
+import com.sun.webkit.network.Util;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.io.*;
@@ -18,6 +19,7 @@ public class Chat {
     private ConcurrentHashMap<String, Peer> peers;
     private static Chat instance;
     private Peer current;
+    private ObservableList<Friend> listFriend;
 
     public void setCurrent(String name) throws Exception {
         Peer res;
@@ -110,6 +112,7 @@ public class Chat {
         System.out.println(res);
         if (res.equalsIgnoreCase("true")) {
             System.out.println("You can chat now!");
+            listFriend = refreshListFriend();
             return true;
         }
         System.out.println("Duplicate username, enter another username!");
@@ -118,12 +121,35 @@ public class Chat {
     }
 
     public ObservableList<Friend> getListFriend() {
+        return listFriend;
+    }
+
+    private ObservableList<Friend> refreshListFriend() {
         ObservableList<Friend> map = FXCollections.observableArrayList(new Friend("Long", true),
                 new Friend("Khang", true));
-
+        dos.println("GET");
+        try {
+            String res = dis.readLine();
+            if (res.equalsIgnoreCase("LIST")) {
+                String[] args;
+                while (!(res = dis.readLine()).equalsIgnoreCase("END")) {
+                    args = Utils.splitMsg(res);
+                    map.add(new Friend(args[0], args[1].equalsIgnoreCase("true")));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return map;
     }
 
+    public void sendMsg(String msg) {
+        current.addPack(Utils.sendMsg(msg));
+    }
 
+    public void sendFile(File file) {
+        current.addFile(file);
+        current.addPack(Utils.sendFile(file.getName()));
+    }
 }
 
