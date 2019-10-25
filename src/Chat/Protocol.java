@@ -17,12 +17,17 @@ public class Protocol {
         return msg.split(" ");
     }
 
-    static File getFile(String name) {
-        return new File(name);
+    static String getType(String msg) {
+        return splitMsg(msg)[0];
     }
 
     static String sendMsg(String msg) {
         String[] msgs = { msg };
         return makeMsg("/msg", msgs);
+    }
+
+    static String sendFile(String name) {
+        String[] msgs = { name };
+        return makeMsg("/file", msgs);
     }
 }
