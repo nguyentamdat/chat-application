@@ -121,6 +121,7 @@ public class Chat {
     }
 
     public ObservableList<Friend> getListFriend() {
+        refreshListFriend();
         return listFriend;
     }
 
