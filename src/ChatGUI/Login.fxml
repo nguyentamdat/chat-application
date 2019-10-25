@@ -20,9 +20,9 @@
             <Font size="30.0" />
          </font>
       </Label>
-      <TextField layoutX="331.0" layoutY="254.0" prefHeight="30.0" prefWidth="250.0" />
-      <TextField layoutX="331.0" layoutY="160.0" prefHeight="30.0" prefWidth="250.0" />
-      <TextField layoutX="331.0" layoutY="118.0" prefHeight="30.0" prefWidth="250.0" />
+      <TextField fx:id="usernameTF" layoutX="331.0" layoutY="254.0" prefHeight="30.0" prefWidth="250.0" />
+      <TextField fx:id="portTF" layoutX="331.0" layoutY="160.0" prefHeight="30.0" prefWidth="250.0" />
+      <TextField fx:id="serverTF" layoutX="331.0" layoutY="118.0" prefHeight="30.0" prefWidth="250.0" />
       <Label layoutX="205.0" layoutY="123.0" text="Server:" />
       <Label layoutX="205.0" layoutY="165.0" text="Port:" />
       <Label layoutX="205.0" layoutY="259.0" text="User Name: " />

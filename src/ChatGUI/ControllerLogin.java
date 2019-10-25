@@ -1,10 +1,10 @@
 package ChatGUI;
-
+import Chat.Chat;
 import java.net.URL;
 import java.io.IOException;
 import java.io.File;
 
-
+import org.apache.commons.lang3.StringUtils;
 import java.util.ResourceBundle;
 
 import javafx.event.EventHandler;
@@ -34,7 +34,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 
 import javafx.scene.layout.AnchorPane;
@@ -43,7 +45,9 @@ import javafx.scene.control.TextField;
 public class ControllerLogin implements Initializable{
     @FXML
     Button btnLogin;
-
+    Chat User;
+    @FXML
+    TextField portTF, serverTF, usernameTF;
     public AnchorPane mainSelect;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -54,18 +58,32 @@ public class ControllerLogin implements Initializable{
         Button button = (Button)e.getSource();
         System.out.println(button.getId());
         System.out.println("out");
-        try{
+        if (!StringUtils.isBlank(portTF.getText()) && !StringUtils.isBlank(serverTF.getText()) && !StringUtils.isBlank(usernameTF.getText()) ) {
+            int port = Integer.parseInt(portTF.getText());
+            String server = serverTF.getText();
+            String username = usernameTF.getText();
+            User = new Chat(server, username, port);
+            try {
 
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatInterface.fxml"));
-            Parent root = fxmlLoader.load();
-            mainSelect.getChildren().setAll(root);
-            mainSelect.setTopAnchor(root, 0.0);
-            mainSelect.setBottomAnchor(root, 0.0);
-            mainSelect.setLeftAnchor(root, 0.0);
-            mainSelect.setRightAnchor(root, 0.0);
-            ControllerChatInterface controller = fxmlLoader.getController();
-        } catch (Exception er) {
-            er.printStackTrace();
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatInterface.fxml"));
+                Parent root = fxmlLoader.load();
+                mainSelect.getChildren().setAll(root);
+                mainSelect.setTopAnchor(root, 0.0);
+                mainSelect.setBottomAnchor(root, 0.0);
+                mainSelect.setLeftAnchor(root, 0.0);
+                mainSelect.setRightAnchor(root, 0.0);
+                ControllerChatInterface controller = fxmlLoader.getController();
+                controller.initUser(User);
+            } catch (Exception er) {
+                er.printStackTrace();
+            }
+        }
+        else {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("ERROR LOGIN PAGE");
+            alert.setHeaderText("Missing field value");
+            alert.setContentText("Please enter full value");
+            alert.showAndWait();
         }
     }
 
