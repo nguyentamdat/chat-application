@@ -1,10 +1,8 @@
 package Chat;
 
-import org.jetbrains.annotations.NotNull;
 
 public class Protocol {
-    @NotNull
-    public static String makeMsg(String type , @NotNull String[] str) {
+    public static String makeMsg(String type , String[] str) {
         StringBuilder typeBuilder = new StringBuilder(type);
         for (String i : str) {
             typeBuilder.append(" ").append(i);
@@ -13,7 +11,7 @@ public class Protocol {
         return type;
     }
 
-    static String[] splitMsg(@NotNull String msg) {
+    static String[] splitMsg(String msg) {
         return msg.split(" ");
     }
 

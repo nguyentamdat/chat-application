@@ -46,9 +46,15 @@ public class ControllerLogin implements Initializable{
     public void initialize(URL location, ResourceBundle resources) {
         try {
             btnLogin.setOnMouseClicked(actionEvent -> {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("BookDetails.fxml"));
-                Parent root =  fxmlLoader.load();
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatInterface.fxml"));
+                Parent root = null;
+                try {
+                    root = fxmlLoader.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Stage stage = new Stage();
+                assert root != null;
                 stage.setScene(new Scene(root, 600, 400));
                 stage.show();
 
