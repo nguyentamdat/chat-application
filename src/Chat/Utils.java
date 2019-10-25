@@ -3,7 +3,7 @@ package Chat;
 
 import java.io.File;
 
-public class Protocol {
+public class Utils {
     public static String makeMsg(String type , String[] str) {
         StringBuilder typeBuilder = new StringBuilder(type);
         for (String i : str) {
@@ -31,3 +31,4 @@ public class Protocol {
         return makeMsg("/file", msgs);
     }
 }
+
