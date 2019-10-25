@@ -1,10 +1,12 @@
 package ChatGUI;
+import Chat.Friend;
 import Chat.Chat;
 import java.net.URL;
 import java.io.IOException;
 import java.io.File;
 
 import javafx.event.ActionEvent;
+import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.StringUtils;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -45,19 +47,50 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.TextField;
 public class ControllerChatInterface implements Initializable{
+    Chat user = Chat.getInstance();
     @FXML
     Button btnAdd;
+    @FXML
+    ListView<Friend> listFriend;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        listFriend.setCellFactory(lv -> new FriendCell());
+        listFriend.setItems(user.getListFriend());
+        listFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
+            @Override
+            public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
+                System.out.println("Selection change from " + friend.getName() + " to " + t1.getName());
+            }
+        });
     }
-    String FriendUser;
-    public void initUser(Chat user){
-        return;
+
+    public class FriendCell extends ListCell<Friend> {
+        private Label lblName, lblStatus;
+        private VBox box;
+
+        public FriendCell() {
+            setPrefWidth(100);
+            lblName = new Label();
+            lblStatus = new Label();
+            box = new VBox(lblName, lblStatus);
+        }
+
+        @Override
+        protected void updateItem(Friend friend, boolean b) {
+            super.updateItem(friend, b);
+
+            if (friend == null || b) {
+                setGraphic(null);
+            } else {
+                lblName.setText(friend.getName());
+                lblStatus.setText(friend.isStatus()?"Online":"Offline");
+                setGraphic(box);
+            }
+        }
     }
     @FXML
     public void onBtnClicked(MouseEvent e) throws Exception {
-        Button button = (Button)e.getSource();
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("RegisterConnect.fxml"));
