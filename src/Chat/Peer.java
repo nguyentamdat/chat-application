@@ -81,7 +81,7 @@ public class Peer implements Runnable {
         if (cmd != '!') {
             if (cmd == '@') receiveFile();
             if (cmd == '/') {
-                String[] args = Protocol.splitMsg(Objects.requireNonNull(receiveMsg()));
+                String[] args = Utils.splitMsg(Objects.requireNonNull(receiveMsg()));
                 if (args[0].equalsIgnoreCase("bye")) {
                     if (args.length > 1 && args[0].equalsIgnoreCase("msg")) setInbox(args[1]);
                     return true;
@@ -92,7 +92,7 @@ public class Peer implements Runnable {
     }
 
     public void sendMsg(String msg) {
-        pack.add(Protocol.sendMsg(msg));
+        pack.add(Utils.sendMsg(msg));
     }
 
     public void sendFile(String[] names) {
@@ -100,7 +100,7 @@ public class Peer implements Runnable {
         for (String name: names) {
             file = new File(name);
             files.put(file.getName(), file);
-            pack.add(Protocol.sendFile(file.getName()));
+            pack.add(Utils.sendFile(file.getName()));
         }
     }
 
@@ -132,10 +132,10 @@ public class Peer implements Runnable {
     private void senderProcess() throws InterruptedException {
         if (!pack.isEmpty()) {
             String packet = pack.take();
-            String type = Protocol.getType(packet);
+            String type = Utils.getType(packet);
             if (type.equalsIgnoreCase("/msg")) send(packet);
             if (type.equalsIgnoreCase("/file")) {
-                String name = Protocol.splitMsg(packet)[1];
+                String name = Utils.splitMsg(packet)[1];
                 sendHeaderFile(name);
                 sendFile(files.get(name));
             };

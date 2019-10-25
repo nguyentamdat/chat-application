@@ -1,5 +1,7 @@
 package ChatGUI;
 import Chat.Chat;
+
+import java.net.ConnectException;
 import java.net.URL;
 import java.io.IOException;
 import java.io.File;
@@ -45,7 +47,7 @@ import javafx.scene.control.TextField;
 public class ControllerLogin implements Initializable{
     @FXML
     Button btnLogin;
-    Chat User;
+    final Chat User = new Chat();
     @FXML
     TextField portTF, serverTF, usernameTF;
     public AnchorPane mainSelect;
@@ -56,25 +58,27 @@ public class ControllerLogin implements Initializable{
     @FXML
     public void onbtnLoginClick(MouseEvent e) throws Exception {
         Button button = (Button)e.getSource();
-        System.out.println(button.getId());
-        System.out.println("out");
         if (!StringUtils.isBlank(portTF.getText()) && !StringUtils.isBlank(serverTF.getText()) && !StringUtils.isBlank(usernameTF.getText()) ) {
             int port = Integer.parseInt(portTF.getText());
             String server = serverTF.getText();
             String username = usernameTF.getText();
-            User = new Chat(server, username, port);
-            try {
-
+            try  {
+                User.init(server, port,username );
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatInterface.fxml"));
                 Parent root = fxmlLoader.load();
                 mainSelect.getChildren().setAll(root);
-                mainSelect.setTopAnchor(root, 0.0);
-                mainSelect.setBottomAnchor(root, 0.0);
-                mainSelect.setLeftAnchor(root, 0.0);
-                mainSelect.setRightAnchor(root, 0.0);
+                AnchorPane.setTopAnchor(root, 0.0);
+                AnchorPane.setBottomAnchor(root, 0.0);
+                AnchorPane.setLeftAnchor(root, 0.0);
+                AnchorPane.setRightAnchor(root, 0.0);
                 ControllerChatInterface controller = fxmlLoader.getController();
                 controller.initUser(User);
-            } catch (Exception er) {
+            }
+            catch (Exception er) {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle(er.toString());
+                alert.setHeaderText(er.toString());
+                alert.showAndWait();
                 er.printStackTrace();
             }
         }
@@ -86,7 +90,6 @@ public class ControllerLogin implements Initializable{
             alert.showAndWait();
         }
     }
-
 }
 
 
