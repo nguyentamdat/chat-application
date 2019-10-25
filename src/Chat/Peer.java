@@ -3,13 +3,19 @@ package Chat;
 import org.apache.commons.io.IOUtils;
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class Peer implements Runnable {
 
     private Socket _socket;
     private DataInputStream dis;
     private DataOutputStream dos;
-    private String msg;
+    private volatile String inbox;
+    private volatile Map<String, File> files;
+    final BlockingQueue<String> pack = new LinkedBlockingDeque<>(4096);
 
     public Peer(Socket socket) {
         _socket = socket;
@@ -21,12 +27,17 @@ public class Peer implements Runnable {
         }
     }
 
-    private void sendMsg(String msg) {
+    private void send(String msg) {
         try {
             dos.writeUTF(msg);
+            dos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setInbox(String inbox) {
+        this.inbox = inbox;
     }
 
     private String receiveMsg() {
@@ -38,47 +49,116 @@ public class Peer implements Runnable {
         }
     }
 
-    private void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    private void receiveFile(String name) {
+    private char receiveHeader() {
         try {
-            FileOutputStream fos = new FileOutputStream(new File("./" + name));
+            return dis.readChar();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return '!';
+        }
+    }
+
+    public String getInbox() {
+        return inbox;
+    }
+
+    private void receiveFile() {
+        try {
+            char ch;
+            StringBuilder name = new StringBuilder();
+            while ((ch = receiveHeader()) != '#') {
+                name.append(ch);
+            }
+            FileOutputStream fos = new FileOutputStream(new File("./" + name.toString()));
             IOUtils.copy(dis, fos);
+            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private boolean processMsg(String arg) {
-        String[] args = Protocol.splitMsg(arg);
-        if (args[0].equalsIgnoreCase("/bye")) {
-            if (args.length > 1 && args[0].equalsIgnoreCase("/msg")) setMsg(args[1]);
-            if (args[0].equalsIgnoreCase("/fil")) receiveFile(args[1]);
-            return true;
+    private boolean receiverMsg(char cmd) {
+        if (cmd != '!') {
+            if (cmd == '@') receiveFile();
+            if (cmd == '/') {
+                String[] args = Protocol.splitMsg(Objects.requireNonNull(receiveMsg()));
+                if (args[0].equalsIgnoreCase("bye")) {
+                    if (args.length > 1 && args[0].equalsIgnoreCase("msg")) setInbox(args[1]);
+                    return true;
+                }
+            }
         }
         return false;
     }
 
-    private boolean readerProcess() {
+    public void sendMsg(String msg) {
+        pack.add(Protocol.sendMsg(msg));
+    }
 
-        return false;
+    public void sendFile(String[] names) {
+        File file;
+        for (String name: names) {
+            file = new File(name);
+            files.put(file.getName(), file);
+            pack.add(Protocol.sendFile(file.getName()));
+        }
+    }
+
+    public void sendFile(String name) {
+        String[] names = {name};
+        sendFile(names);
+    }
+
+    private void sendFile(File file) {
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            IOUtils.copy(fis, dos);
+            dos.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void sendHeaderFile(String name) {
+        try {
+            dos.writeUTF("@"+name+"#");
+            dos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void senderProcess() throws InterruptedException {
+        if (!pack.isEmpty()) {
+            String packet = pack.take();
+            String type = Protocol.getType(packet);
+            if (type.equalsIgnoreCase("/msg")) send(packet);
+            if (type.equalsIgnoreCase("/file")) {
+                String name = Protocol.splitMsg(packet)[1];
+                sendHeaderFile(name);
+                sendFile(files.get(name));
+            };
+        }
+    }
+
+    private boolean isConnected() {
+        return _socket.isConnected();
     }
 
     @Override
     public void run() {
         Thread inputThread = new Thread(() -> {
-            while (true) {
-                if (!readerProcess()) break;
+            while (isConnected()) {
+                try {
+                    senderProcess();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
-        while (_socket.isConnected()) {
-            if (!processMsg(receiveMsg())) break;
+        while (isConnected()) {
+            if (!receiverMsg(receiveHeader())) break;
         }
         try {
             inputThread.join();
