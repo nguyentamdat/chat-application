@@ -1,6 +1,8 @@
 package Chat;
 
 
+import java.io.File;
+
 public class Protocol {
     public static String makeMsg(String type , String[] str) {
         StringBuilder typeBuilder = new StringBuilder(type);
@@ -15,5 +17,12 @@ public class Protocol {
         return msg.split(" ");
     }
 
+    static File getFile(String name) {
+        return new File(name);
+    }
 
+    static String sendMsg(String msg) {
+        String[] msgs = { msg };
+        return makeMsg("/msg", msgs);
+    }
 }

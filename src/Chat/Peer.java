@@ -9,7 +9,8 @@ public class Peer implements Runnable {
     private Socket _socket;
     private DataInputStream dis;
     private DataOutputStream dos;
-    private String msg;
+    private volatile String inbox;
+    private volatile String outbox;
 
     public Peer(Socket socket) {
         _socket = socket;
@@ -21,7 +22,7 @@ public class Peer implements Runnable {
         }
     }
 
-    private void sendMsg(String msg) {
+    private void send(String msg) {
         try {
             dos.writeUTF(msg);
         } catch (IOException e) {
@@ -38,12 +39,12 @@ public class Peer implements Runnable {
         }
     }
 
-    private void setMsg(String msg) {
-        this.msg = msg;
+    public void setInbox(String inbox) {
+        this.inbox = inbox;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getInbox() {
+        return inbox;
     }
 
     private void receiveFile(String name) {
@@ -55,30 +56,48 @@ public class Peer implements Runnable {
         }
     }
 
-    private boolean processMsg(String arg) {
+    private boolean receiverMsg(String arg) {
         String[] args = Protocol.splitMsg(arg);
         if (args[0].equalsIgnoreCase("/bye")) {
-            if (args.length > 1 && args[0].equalsIgnoreCase("/msg")) setMsg(args[1]);
+            if (args.length > 1 && args[0].equalsIgnoreCase("/msg")) setInbox(args[1]);
             if (args[0].equalsIgnoreCase("/fil")) receiveFile(args[1]);
             return true;
         }
         return false;
     }
 
-    private boolean readerProcess() {
+    public void setOutbox(String outbox) {
+        this.outbox = outbox;
+    }
 
-        return false;
+    public String getOutbox() {
+        return outbox;
+    }
+
+    public void sendMsg(String msg) {
+        setOutbox(Protocol.sendMsg(msg));
+    }
+
+    private void senderProcess() {
+        if (getOutbox() != null) {
+            send(getOutbox());
+            setOutbox(null);
+        }
+    }
+
+    private boolean isConnected() {
+        return _socket.isConnected();
     }
 
     @Override
     public void run() {
         Thread inputThread = new Thread(() -> {
-            while (true) {
-                if (!readerProcess()) break;
+            while (isConnected()) {
+                senderProcess();
             }
         });
-        while (_socket.isConnected()) {
-            if (!processMsg(receiveMsg())) break;
+        while (isConnected()) {
+            if (!receiverMsg(receiveMsg())) break;
         }
         try {
             inputThread.join();
