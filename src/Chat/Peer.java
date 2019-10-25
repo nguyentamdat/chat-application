@@ -138,7 +138,7 @@ public class Peer implements Runnable {
                 String name = Utils.splitMsg(packet)[1];
                 sendHeaderFile(name);
                 sendFile(files.get(name));
-            };
+            }
         }
     }
 

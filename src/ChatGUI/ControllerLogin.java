@@ -45,9 +45,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.TextField;
 
 public class ControllerLogin implements Initializable{
+    Chat user = Chat.getInstance();
     @FXML
     Button btnLogin;
-    final Chat User = new Chat();
     @FXML
     TextField portTF, serverTF, usernameTF;
     public AnchorPane mainSelect;
@@ -63,7 +63,7 @@ public class ControllerLogin implements Initializable{
             String server = serverTF.getText();
             String username = usernameTF.getText();
             try  {
-                User.init(server, port,username );
+                user.init(server, port,username );
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatInterface.fxml"));
                 Parent root = fxmlLoader.load();
                 mainSelect.getChildren().setAll(root);
@@ -72,7 +72,6 @@ public class ControllerLogin implements Initializable{
                 AnchorPane.setLeftAnchor(root, 0.0);
                 AnchorPane.setRightAnchor(root, 0.0);
                 ControllerChatInterface controller = fxmlLoader.getController();
-                controller.initUser(User);
             }
             catch (Exception er) {
                 Alert alert = new Alert(AlertType.INFORMATION);

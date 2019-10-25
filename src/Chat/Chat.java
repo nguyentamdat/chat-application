@@ -1,8 +1,11 @@
 package Chat;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Chat {
@@ -13,6 +16,24 @@ public class Chat {
     private BufferedReader dis;
     private PrintWriter dos;
     private ConcurrentHashMap<String, Peer> peers;
+    private static Chat instance;
+    private Peer current;
+
+    public void setCurrent(String name) throws Exception {
+        Peer res;
+        if ((res = peers.get(name)) != null) {
+            current = res;
+        } else throw new Exception("Not found user");
+    }
+
+    public static Chat getInstance() {
+        if (instance == null) {
+            instance = new Chat();
+        }
+        return instance;
+    }
+
+    private Chat() {}
 
     public int getPort() {
         return port;
@@ -95,4 +116,14 @@ public class Chat {
         throw new Exception("Duplicate username");
         //endregion
     }
+
+    public ObservableList<Friend> getListFriend() {
+        ObservableList<Friend> map = FXCollections.observableArrayList(new Friend("Long", true),
+                new Friend("Khang", true));
+
+        return map;
+    }
+
+
 }
+
