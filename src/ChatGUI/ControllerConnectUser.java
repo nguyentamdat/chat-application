@@ -4,11 +4,8 @@ import java.net.URL;
 import java.io.IOException;
 import java.io.File;
 
-import javafx.event.ActionEvent;
 import org.apache.commons.lang3.StringUtils;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
@@ -44,31 +41,13 @@ import javafx.scene.control.Button;
 
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.TextField;
-public class ControllerChatInterface implements Initializable{
+public class ControllerConnectUser implements Initializable{
     @FXML
-    Button btnAdd;
+    Button btnConnect;
+    @FXML
+    TextField usernameTF;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
-    }
-    String FriendUser;
-    public void initUser(Chat user){
-        return;
-    }
-    @FXML
-    public void onBtnClicked(MouseEvent e) throws Exception {
-        Button button = (Button)e.getSource();
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("RegisterConnect.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 500, 250);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (Exception er) {
-            er.printStackTrace();
-        }
 
     }
 

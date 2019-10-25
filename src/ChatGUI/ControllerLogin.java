@@ -56,9 +56,8 @@ public class ControllerLogin implements Initializable{
     @FXML
     public void onbtnLoginClick(MouseEvent e) throws Exception {
         Button button = (Button)e.getSource();
-        System.out.println(button.getId());
-        System.out.println("out");
-        if (!StringUtils.isBlank(portTF.getText()) && !StringUtils.isBlank(serverTF.getText()) && !StringUtils.isBlank(usernameTF.getText()) ) {
+
+        if (button.getId().equals("btnLogin") && !StringUtils.isBlank(portTF.getText()) && !StringUtils.isBlank(serverTF.getText()) && !StringUtils.isBlank(usernameTF.getText()) ) {
             int port = Integer.parseInt(portTF.getText());
             String server = serverTF.getText();
             String username = usernameTF.getText();
