@@ -60,7 +60,8 @@ public class ControllerChatInterface implements Initializable {
                 else {
                     inputChat.setText("");
                     inputChat.setDisable(false);
-                    inboxList = FXCollections.observableList(user.getInbox());
+                    inboxList.clear();
+                    inboxList.addAll(user.getInbox());
                 }
             }
         });
@@ -141,13 +142,13 @@ public class ControllerChatInterface implements Initializable {
     }
     public class InboxCell extends ListCell<Message> {
         private Label lblMsg, lblUser;
-        private VBox box;
+        private HBox box;
 
         public InboxCell() {
             setPrefHeight(20);
             lblMsg = new Label();
             lblUser = new Label();
-            box = new VBox(lblUser, lblMsg);
+            box = new HBox(lblUser, lblMsg);
         }
 
         @Override

@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,18 +16,18 @@ public class Peer extends Thread {
 
     public ObservableList<Message> inbox = FXCollections.observableArrayList();
     final BlockingQueue<String> pack = new LinkedBlockingQueue<>(4096);
-    private Socket _socket;
-    private BufferedReader in;
-    private PrintWriter out;
+    public int port;
+    private Socket _socket = null;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
     private ConcurrentHashMap<String, File> files;
     private String name;
     private boolean keepGo;
+    private ServerSocket server = null;
 
-    public Peer(Socket socket, String name) {
-        _socket = socket;
-        initIO();
-        out.println("/start " + Chat.getInstance().getUsername());
-        this.name = name;
+    public Peer(ServerSocket server) {
+        this.server = server;
+        port = server.getLocalPort();
     }
 
     public Peer(Socket socket) {
@@ -41,8 +42,9 @@ public class Peer extends Thread {
 
     private void initIO() {
         try {
-            in = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
-            out = new PrintWriter(_socket.getOutputStream(), true);
+            in = new ObjectInputStream(_socket.getInputStream());
+            out = new ObjectOutputStream(_socket.getOutputStream());
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,18 +58,17 @@ public class Peer extends Thread {
         return files.get(name);
     }
 
-    private void send(String msg) {
-        out.println(msg);
-        addInbox(Chat.getInstance().getUsername(), msg.replace("/msg ", ""));
+    public void send(Message msg) {
+        try {
+            out.writeObject(msg);
+            inbox.add(msg);
+        } catch (IOException e) {
+            System.out.println("Error Peer: send()");
+        }
     }
 
     public void addPack(String msg) {
         pack.add(msg);
-    }
-
-    private void addInbox(String user, String msg) {
-//        inbox.add(new Message(user, msg));
-        System.out.println("add: " + msg);
     }
 
     private String receiveMsg() {
@@ -88,7 +89,6 @@ public class Peer extends Thread {
             IOUtils.copy(fis, fos);
             fos.close();
             fis.close();
-            addInbox(name, filename);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,13 +99,10 @@ public class Peer extends Thread {
         if (!type.equalsIgnoreCase("/bye")) {
             switch (type) {
                 case "/msg": {
-                    addInbox(name, Utils.splitMsg(msg)[1]);
-                    out.println("$");
                     break;
                 }
                 case "/file": {
                     receiveFile(Utils.splitMsg(msg)[1]);
-                    out.println("$");
                     break;
                 }
             }
@@ -120,7 +117,6 @@ public class Peer extends Thread {
             IOUtils.copy(fis, fos);
             fis.close();
             fos.close();
-            addInbox(Chat.getInstance().getUsername(), file.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -128,7 +124,6 @@ public class Peer extends Thread {
     }
 
     private void sendHeaderFile(String name) {
-        out.println("/file " + name);
     }
 
     private void senderProcess() throws InterruptedException {
@@ -137,7 +132,6 @@ public class Peer extends Thread {
             String type = Utils.getType(packet);
             System.out.println(type);
             if (type.equalsIgnoreCase("/msg")) {
-                send(packet);
             }
             if (type.equalsIgnoreCase("/file")) {
                 String name = Utils.splitMsg(packet)[1];

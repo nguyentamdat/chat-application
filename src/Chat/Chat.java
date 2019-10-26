@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Chat {
+public class Chat extends Thread {
     private static Chat instance;
     private int port;
     private String servername, username;
@@ -19,7 +19,6 @@ public class Chat {
     private ConcurrentHashMap<String, Peer> peers;
     private Peer current;
     private ArrayList<Friend> listFriend;
-    private Thread waiting;
 
     private Chat() {
         peers = new ConcurrentHashMap<>();
@@ -117,18 +116,7 @@ public class Chat {
         if (res.equalsIgnoreCase("true")) {
             System.out.println("You can chat now!");
             listFriend = refreshListFriend();
-            waiting = new Thread(() -> {
-                while (true) {
-                    try {
-                        System.out.println("Waiting");
-                        Socket socket = selfSocket.accept();
-                        new Peer(socket).start();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            waiting.start();
+            this.start();
             return true;
         }
         System.out.println("Duplicate username, enter another username!");
@@ -182,7 +170,9 @@ public class Chat {
             if (args[0].equalsIgnoreCase("FOUND")) {
                 String[] ip_port = args[1].split(":");
                 Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
-                Peer p = new Peer(socket, name);
+                ServerSocket server = new ServerSocket(0);
+                Peer p = new Peer(server);
+                p.send(new Message("start", username, name, ""+p.port));
                 p.start();
                 addPeer(name, p);
                 setCurrent(name);
@@ -196,6 +186,19 @@ public class Chat {
 
     public ObservableList<Message> getInbox() {
         return current != null ? current.inbox : null;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                Socket socket = selfSocket.accept();
+
+            } catch (Exception e) {
+                System.out.println("Error Chat: run()");
+            }
+
+        }
     }
 }
 
