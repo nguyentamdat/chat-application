@@ -9,26 +9,43 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
-public class Peer implements Runnable {
+public class Peer extends Thread {
 
-    public final ObservableList<Message> inbox = FXCollections.observableArrayList();
+    public ObservableList<Message> inbox = FXCollections.observableArrayList();
     final BlockingQueue<String> pack = new LinkedBlockingQueue<>(4096);
     private Socket _socket;
     private BufferedReader in;
     private PrintWriter out;
     private ConcurrentHashMap<String, File> files;
     private String name;
+    private boolean keepGo;
 
     public Peer(Socket socket, String name) {
         _socket = socket;
+        initIO();
+        out.println("/start " + Chat.getInstance().getUsername());
+        this.name = name;
+    }
+
+    public Peer(Socket socket) {
+        _socket = socket;
+        initIO();
+        String[] args = Utils.splitMsg(receiveMsg());
+        if (args[0].equalsIgnoreCase("/start")) {
+            name = args[1];
+            Chat.getInstance().addPeer(args[1], this);
+        }
+    }
+
+    private void initIO() {
         try {
             in = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
             out = new PrintWriter(_socket.getOutputStream(), true);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.name = name;
     }
 
     public void addFile(File file) {
@@ -39,26 +56,25 @@ public class Peer implements Runnable {
         return files.get(name);
     }
 
-    private boolean send(String msg) {
+    private void send(String msg) {
         out.println(msg);
-        System.out.println(msg);
-        String res = receiveMsg();
-        return res.equalsIgnoreCase("$") &&
-                addInbox(Chat.getInstance().getUsername(), msg.replace("/msg ", ""));
+        addInbox(Chat.getInstance().getUsername(), msg.replace("/msg ", ""));
     }
 
     public void addPack(String msg) {
         pack.add(msg);
     }
 
-    private boolean addInbox(String user, String msg) {
-        inbox.add(new Message(user, msg));
-        return true;
+    private void addInbox(String user, String msg) {
+//        inbox.add(new Message(user, msg));
+        System.out.println("add: " + msg);
     }
 
     private String receiveMsg() {
         try {
-            return in.readLine();
+            String msg = in.readLine();
+            System.out.println("msg: " + msg);
+            return msg;
         } catch (IOException e) {
             e.printStackTrace();
             return "";
@@ -78,24 +94,25 @@ public class Peer implements Runnable {
         }
     }
 
-    private boolean processMsg(String msg) {
-        String[] args = Utils.splitMsg(msg);
-        System.out.println(msg);
-        if (!args[0].equalsIgnoreCase("/bye")) {
-            if (args.length > 1 && args[0].equalsIgnoreCase("/msg")) {
-                addInbox(name, args[1]);
-                out.println("$");
+    private void processMsg(String msg) {
+        String type = Utils.getType(msg);
+        if (!type.equalsIgnoreCase("/bye")) {
+            switch (type) {
+                case "/msg": {
+                    addInbox(name, Utils.splitMsg(msg)[1]);
+                    out.println("$");
+                    break;
+                }
+                case "/file": {
+                    receiveFile(Utils.splitMsg(msg)[1]);
+                    out.println("$");
+                    break;
+                }
             }
-            if (args[0].equalsIgnoreCase("/file")) {
-                receiveFile(args[1]);
-                out.println("$");
-            }
-            return true;
         }
-        return false;
     }
 
-    private boolean sendFile(File file) {
+    private void sendFile(File file) {
         try {
             sendHeaderFile(file.getName());
             FileInputStream fis = new FileInputStream(file);
@@ -103,11 +120,9 @@ public class Peer implements Runnable {
             IOUtils.copy(fis, fos);
             fis.close();
             fos.close();
-            return in.readLine().equalsIgnoreCase("$") &&
-                    addInbox(Chat.getInstance().getUsername(), file.getName());
+            addInbox(Chat.getInstance().getUsername(), file.getName());
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
 
     }
@@ -116,21 +131,21 @@ public class Peer implements Runnable {
         out.println("/file " + name);
     }
 
-    private boolean senderProcess() throws InterruptedException {
-        if (!pack.isEmpty()) {
-            String packet = pack.take();
+    private void senderProcess() throws InterruptedException {
+        String packet = pack.poll(1, TimeUnit.SECONDS);
+        if (packet != null) {
             String type = Utils.getType(packet);
+            System.out.println(type);
             if (type.equalsIgnoreCase("/msg")) {
-                return send(packet);
+                send(packet);
             }
             if (type.equalsIgnoreCase("/file")) {
                 String name = Utils.splitMsg(packet)[1];
                 sendHeaderFile(name);
-                return sendFile(files.get(name));
+                sendFile(files.get(name));
             }
-            return !type.equalsIgnoreCase("/bye");
+            keepGo = !type.equalsIgnoreCase("/bye");
         }
-        return true;
     }
 
     private boolean isConnected() {
@@ -139,7 +154,9 @@ public class Peer implements Runnable {
 
     private void disconnect() {
         try {
-
+            if (in != null) in.close();
+            if (out != null) out.close();
+            if (_socket != null) _socket.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -148,23 +165,13 @@ public class Peer implements Runnable {
     @Override
     public void run() {
         System.out.println("Start chat with " + name);
-        Thread inputThread = new Thread(() -> {
-            while (isConnected()) {
-                try {
-                    if (!senderProcess()) break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        while (isConnected() && keepGo) {
+            try {
+                senderProcess();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        });
-        inputThread.start();
-        while (isConnected()) {
-            if (!processMsg(receiveMsg())) break;
-        }
-        try {
-            inputThread.join();
-        } catch (Exception e) {
-            e.printStackTrace();
+            processMsg(receiveMsg());
         }
         disconnect();
     }

@@ -21,10 +21,7 @@ import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import javax.xml.catalog.Catalog;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class ControllerChatInterface implements Initializable {
@@ -160,8 +157,8 @@ public class ControllerChatInterface implements Initializable {
             if (msg == null || b) {
                 setGraphic(null);
             } else {
-                lblName.setText(msg.getUser());
-
+                lblUser.setText(msg.getFrom());
+                lblMsg.setText(msg.getMessage());
                 setGraphic(box);
             }
         }

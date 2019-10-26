@@ -117,20 +117,20 @@ public class Chat {
         if (res.equalsIgnoreCase("true")) {
             System.out.println("You can chat now!");
             listFriend = refreshListFriend();
-            return true;
-        }
-        waiting = new Thread() {
-            @Override
-            public void run() {
+            waiting = new Thread(() -> {
                 while (true) {
                     try {
+                        System.out.println("Waiting");
                         Socket socket = selfSocket.accept();
+                        new Peer(socket).start();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-            }
-        };
+            });
+            waiting.start();
+            return true;
+        }
         System.out.println("Duplicate username, enter another username!");
         throw new Exception("Duplicate username");
         //endregion
@@ -170,13 +170,12 @@ public class Chat {
 
     public boolean chatWith(String name) {
         if (!peers.containsKey(name)) {
-            startWith(name);
-            return setCurrent(name);
+            return startWith(name);
         }
-        return false;
+        return setCurrent(name);
     }
 
-    private void startWith(String name) {
+    private boolean startWith(String name) {
         dos.println("GET " + name);
         try {
             String[] args = dis.readLine().split("/");
@@ -184,12 +183,15 @@ public class Chat {
                 String[] ip_port = args[1].split(":");
                 Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
                 Peer p = new Peer(socket, name);
-                new Thread(p).start();
-                peers.put(name, p);
+                p.start();
+                addPeer(name, p);
+                setCurrent(name);
+                return true;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public ObservableList<Message> getInbox() {

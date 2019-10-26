@@ -1,16 +1,37 @@
 package Chat;
 
-public class Message {
-    private String user;
-    private String message;
+import java.io.Serializable;
 
-    public Message(String user, String msg) {
+public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String from, to;
+    private String message, type;
+
+    public Message(String type, String from, String to, String msg) {
+        setFrom(from);
+        setTo(to);
+        setType(type);
         setMessage(msg);
-        setUser(user);
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public String getMessage() {
@@ -21,7 +42,7 @@ public class Message {
         this.message = message;
     }
 
-    public String getUser() {
-        return user;
+    public String getFrom() {
+        return from;
     }
 }
