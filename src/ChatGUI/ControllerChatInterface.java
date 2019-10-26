@@ -2,7 +2,6 @@ package ChatGUI;
 
 import Chat.Chat;
 import Chat.Friend;
-import Chat.Message;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -11,83 +10,40 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-
-import javax.xml.catalog.Catalog;
+import javafx.scene.paint.Color;
+import java.awt.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class ControllerChatInterface implements Initializable {
-    private Chat user = Chat.getInstance();
-    private ObservableList<Friend> listFriend;
-    private ObservableList<Message> inboxList;
+    Chat user = Chat.getInstance();
+    ObservableList<Friend> listFriend;
     @FXML
     Button btnAdd;
     @FXML
     Button btnRefresh;
     @FXML
     ListView<Friend> listViewFriend;
-    @FXML
-    Label lblName;
-    @FXML
-    TextField inputChat;
-    @FXML
-    ListView<Message> inbox;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         listViewFriend.setCellFactory(lv -> new FriendCell());
-        listFriend = FXCollections.observableList(user.getListFriend());
+        listFriend = FXCollections.observableArrayList(user.getListFriend());
         listViewFriend.setItems(listFriend);
-        inbox.setCellFactory(lv -> new InboxCell());
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
-                String name = t1.getName();
-                System.out.println("Selection change to " + name);
-                lblName.setText(name);
-                if (!user.chatWith(name)) {
-                    inputChat.setText("User offline!");
-                    inputChat.setDisable(true);
-                }
-                else {
-                    inputChat.setText("");
-                    inputChat.setDisable(false);
-                    inboxList = FXCollections.observableList(user.getInbox());
-                }
+                System.out.println("Selection change to " + t1.getName());
             }
         });
-    }
-
-    @FXML
-    public void onClickedSend(MouseEvent event) {
-        try {
-            String msg = inputChat.getText();
-            if (!"".equalsIgnoreCase(msg)) {
-                user.sendMsg(msg);
-                inputChat.setText("");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    public void onKeyEnter(KeyEvent event) {
-        try {
-            if (event.getCode() == KeyCode.ENTER) {
-                onClickedSend(null);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @FXML
@@ -108,8 +64,8 @@ public class ControllerChatInterface implements Initializable {
     @FXML
     public void onBtnRefreshClicked(MouseEvent e) {
         try {
-            listFriend.clear();
-            listFriend.addAll(user.getListFriend());
+            System.out.println(listFriend);
+            listFriend = FXCollections.observableArrayList(user.getListFriend());
         } catch (Exception er) {
             er.printStackTrace();
         }
@@ -118,12 +74,13 @@ public class ControllerChatInterface implements Initializable {
     public class FriendCell extends ListCell<Friend> {
         private Label lblName, lblStatus;
         private VBox box;
+        private Circle state = new Circle(2.0f,Color.RED);
 
         public FriendCell() {
             setPrefWidth(100);
             lblName = new Label();
             lblStatus = new Label();
-            box = new VBox(lblName, lblStatus);
+            box = new VBox(lblName, state);
         }
 
         @Override
@@ -134,31 +91,7 @@ public class ControllerChatInterface implements Initializable {
                 setGraphic(null);
             } else {
                 lblName.setText(friend.getName());
-                lblStatus.setText(friend.isStatus() ? "Online" : "Offline");
-                setGraphic(box);
-            }
-        }
-    }
-    public class InboxCell extends ListCell<Message> {
-        private Label lblMsg, lblUser;
-        private VBox box;
-
-        public InboxCell() {
-            setPrefHeight(20);
-            lblMsg = new Label();
-            lblUser = new Label();
-            box = new VBox(lblUser, lblMsg);
-        }
-
-        @Override
-        protected void updateItem(Message msg, boolean b) {
-            super.updateItem(msg, b);
-
-            if (msg == null || b) {
-                setGraphic(null);
-            } else {
-                lblName.setText(msg.getUser());
-                lblMsg.setText(msg.getMessage());
+                state.setFill(friend.isStatus() ? Color.GREEN : Color.RED);
                 setGraphic(box);
             }
         }
