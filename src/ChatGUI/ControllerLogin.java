@@ -53,7 +53,8 @@ public class ControllerLogin implements Initializable{
     public AnchorPane mainSelect;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        portTF.setText("6000");
+        serverTF.setText("localhost");
     }
     @FXML
     public void onBtnLoginClick(MouseEvent e) throws Exception {

@@ -1,11 +1,16 @@
 package Chat;
 
 public class Message {
-    private Chat receiver;
+    private String user;
     private String message;
 
-    public void setReceiver(Chat receiver) {
-        this.receiver = receiver;
+    public Message(String user, String msg) {
+        setMessage(msg);
+        setUser(user);
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public String getMessage() {
@@ -16,7 +21,7 @@ public class Message {
         this.message = message;
     }
 
-    public Chat getReceiver() {
-        return receiver;
+    public String getUser() {
+        return user;
     }
 }

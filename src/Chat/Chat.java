@@ -1,17 +1,15 @@
 package Chat;
 
-import com.sun.webkit.network.Util;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Chat {
+    private static Chat instance;
     private int port;
     private String servername, username;
     private ServerSocket selfSocket;
@@ -19,15 +17,12 @@ public class Chat {
     private BufferedReader dis;
     private PrintWriter dos;
     private ConcurrentHashMap<String, Peer> peers;
-    private static Chat instance;
     private Peer current;
-    private List<Friend> listFriend;
+    private ArrayList<Friend> listFriend;
+    private Thread waiting;
 
-    public void setCurrent(String name) throws Exception {
-        Peer res;
-        if ((res = peers.get(name)) != null) {
-            current = res;
-        } else throw new Exception("Not found user");
+    private Chat() {
+        peers = new ConcurrentHashMap<>();
     }
 
     public static Chat getInstance() {
@@ -37,34 +32,37 @@ public class Chat {
         return instance;
     }
 
-    private Chat() {}
+    public boolean setCurrent(String name) {
+        Peer res;
+        if ((res = peers.get(name)) != null) {
+            current = res;
+            return true;
+        }
+        return false;
+    }
 
     public int getPort() {
         return port;
-    }
-
-    public String getServername() {
-        return servername;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     public void setPort(int port) {
         this.port = port;
     }
 
+    public String getServername() {
+        return servername;
+    }
+
     public void setServername(String servername) {
         this.servername = servername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getUsername() {
+        return username;
     }
 
-    public void setServerSocket(Socket serverSocket) {
-        this.serverSocket = serverSocket;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Peer getPeer(String name) {
@@ -83,7 +81,11 @@ public class Chat {
         return serverSocket;
     }
 
-    public boolean init(String server, int port, String username) throws Exception{
+    public void setServerSocket(Socket serverSocket) {
+        this.serverSocket = serverSocket;
+    }
+
+    public boolean init(String server, int port, String username) throws Exception {
         setUsername(username);
         setPort(port);
         setServername(server);
@@ -117,18 +119,30 @@ public class Chat {
             listFriend = refreshListFriend();
             return true;
         }
+        waiting = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Socket socket = selfSocket.accept();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
         System.out.println("Duplicate username, enter another username!");
         throw new Exception("Duplicate username");
         //endregion
     }
 
-    public List<Friend> getListFriend() {
-        refreshListFriend();
+    public ArrayList<Friend> getListFriend() {
+        listFriend = refreshListFriend();
         return listFriend;
     }
 
-    private List<Friend> refreshListFriend() {
-        List<Friend> list = new ArrayList<Friend>();
+    private ArrayList<Friend> refreshListFriend() {
+        ArrayList<Friend> list = new ArrayList<Friend>();
         dos.println("GET");
         try {
             String res = dis.readLine();
@@ -152,6 +166,34 @@ public class Chat {
     public void sendFile(File file) {
         current.addFile(file);
         current.addPack(Utils.sendFile(file.getName()));
+    }
+
+    public boolean chatWith(String name) {
+        if (!peers.containsKey(name)) {
+            startWith(name);
+            return setCurrent(name);
+        }
+        return false;
+    }
+
+    private void startWith(String name) {
+        dos.println("GET " + name);
+        try {
+            String[] args = dis.readLine().split("/");
+            if (args[0].equalsIgnoreCase("FOUND")) {
+                String[] ip_port = args[1].split(":");
+                Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
+                Peer p = new Peer(socket, name);
+                new Thread(p).start();
+                peers.put(name, p);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ObservableList<Message> getInbox() {
+        return current != null ? current.inbox : null;
     }
 }
 
