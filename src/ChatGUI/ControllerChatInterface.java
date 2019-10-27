@@ -76,7 +76,7 @@ public class ControllerChatInterface implements Initializable {
                     dropShadow.setRadius(5.0);
                     dropShadow.setOffsetX(3.0);
                     dropShadow.setOffsetY(3.0);
-                    dropShadow.setColor(Color.rgb(0,0,0));
+                    dropShadow.setColor(Color.rgb(255,255,255, 0.75));
                     lblName.setEffect(dropShadow);
                     lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
                     lblName.setAlignment(Pos.CENTER);
