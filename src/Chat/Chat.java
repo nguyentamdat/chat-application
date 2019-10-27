@@ -9,22 +9,21 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Chat extends Thread {
     private static Chat instance;
     public ConcurrentHashMap<String, Peer> peers;
     public volatile ObservableList<Message> listMsg = FXCollections.observableArrayList();
+    public volatile Peer current;
+    public ControllerChatInterface controller;
     private int port;
     private String servername, username;
     private ServerSocket selfSocket;
     private Socket serverSocket;
     private BufferedReader dis;
     private PrintWriter dos;
-    public volatile Peer current;
     private ArrayList<Friend> listFriend;
-    public ControllerChatInterface controller;
 
     private Chat() {
         peers = new ConcurrentHashMap<>(200);
