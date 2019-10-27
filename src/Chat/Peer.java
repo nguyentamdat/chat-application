@@ -1,29 +1,25 @@
 package Chat;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
 
-import java.io.File;
+import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class Peer extends Thread {
 
-    final BlockingQueue<String> pack = new LinkedBlockingQueue<>(4096);
-    public volatile ObservableList<Message> inbox = Chat.getInstance().getListMsg();
+    public volatile List<Message> inbox = new LinkedList<>();
     public int port;
     private Socket _socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
-    private String name;
+    public String name;
     private boolean keepGo = true;
 
     public Peer(Socket socket) {
@@ -48,15 +44,25 @@ public class Peer extends Thread {
             System.out.println("Send from: " + _socket.getLocalPort() + " to " + _socket.getPort());
             out.writeObject(msg);
             out.flush();
-            if (msg.getMessage()) inbox.add(msg);
+            if (!msg.getMessage().equalsIgnoreCase("")) {
+                inbox.add(msg);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Chat.getInstance().listMsg.add(msg);
+                    }
+                });
+            }
         } catch (IOException e) {
             System.out.println("Error Peer: send()");
             e.printStackTrace();
         }
     }
 
-    public void addPack(String msg) {
-        pack.add(msg);
+    private void addToListMsg(Message msg) {
+        if (msg.getFrom().equalsIgnoreCase(Chat.getInstance().current.name)) {
+            Chat.getInstance().listMsg.add(msg);
+        }
     }
 
     private Message receiveMsg() {
@@ -80,6 +86,14 @@ public class Peer extends Thread {
                 break;
             case "msg":
                 inbox.add(msg);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Chat.getInstance().setCurrent(name);
+                        Chat.getInstance().controller.setLblName(name);
+                        addToListMsg(msg);
+                    }
+                });
                 break;
             case "file":
                 String[] msgSep = msg.getMessage().split(":");

@@ -55,15 +55,16 @@ public class ControllerChatInterface implements Initializable {
         listViewFriend.setItems(listFriend);
         inbox.setItems(user.getListMsg());
         inbox.setCellFactory(lv -> new InboxCell());
+        lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 14));
+        lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
+                if (friend == t1) return;
                 if (t1 != null) {
                     String name = t1.getName();
                     System.out.println("Selection change to " + name);
                     lblName.setText(name);
-                    lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 14));
-                    lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
                     if (t1.isStatus()) {
                         System.out.println("Starting chatting");
                         if (!user.chatWith(name)) {
@@ -81,6 +82,10 @@ public class ControllerChatInterface implements Initializable {
             }
         });
         listViewFriend.setBackground(Background.EMPTY);
+    }
+
+    public void setLblName(String name) {
+        lblName.setText(name);
     }
 
     @FXML
@@ -110,10 +115,10 @@ public class ControllerChatInterface implements Initializable {
     @FXML
     public void onBtnFileClicked(MouseEvent e) {
         Window stage = ((Node) e.getTarget()).getScene().getWindow();
-        Button button = (Button) e.getSource();
         FileChooser fil_chooser = new FileChooser();
         File file = fil_chooser.showOpenDialog(stage);
         String filepath = file.getAbsolutePath();
+        user.sendFile(filepath);
     }
 
     @FXML
@@ -196,13 +201,13 @@ public class ControllerChatInterface implements Initializable {
             } else {
                 lblUser.setText(msg.getFrom());
                 lblUser.setFont(Font.font("Roboto", 14));
-                lblMsg.setText(msg.getMessage());
+                lblMsg.setText(msg.getType().equalsIgnoreCase("file") ? msg.getMessage().split(":")[1] : msg.getMessage());
                 lblMsg.setFont(Font.font("Roboto", 14));
                 if (msg.getFrom().equalsIgnoreCase(user.getUsername())) {
-                    box = new HBox(lblUser, lblMsg);
+                    box = new HBox(lblMsg);
                     box.setAlignment(Pos.CENTER_RIGHT);
                 } else {
-                    box = new HBox(lblMsg, lblUser);
+                    box = new HBox(lblMsg);
                 }
                 setGraphic(box);
             }

@@ -1,5 +1,7 @@
 package Chat;
 
+import ChatGUI.ControllerChatInterface;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -20,8 +22,9 @@ public class Chat extends Thread {
     private Socket serverSocket;
     private BufferedReader dis;
     private PrintWriter dos;
-    private Peer current;
+    public volatile Peer current;
     private ArrayList<Friend> listFriend;
+    public ControllerChatInterface controller;
 
     private Chat() {
         peers = new ConcurrentHashMap<>(200);
@@ -43,6 +46,13 @@ public class Chat extends Thread {
         Peer res;
         if ((res = peers.get(name)) != null) {
             current = res;
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    listMsg.clear();
+                    listMsg.addAll(current.inbox);
+                }
+            });
             return true;
         }
         return false;
@@ -124,7 +134,6 @@ public class Chat extends Thread {
         if (res.equalsIgnoreCase("true")) {
             System.out.println("You can chat now!");
             listFriend = refreshListFriend();
-            this.start();
             return true;
         }
         System.out.println("Duplicate username, enter another username!");
@@ -157,7 +166,7 @@ public class Chat extends Thread {
 
     public void sendMsg(String msg) {
         System.out.println("Sending message: " + msg);
-        current.send(new Message("msg", username, current.getName(), msg));
+        current.send(new Message("msg", username, current.name, msg));
         System.out.println("Sent");
     }
 
@@ -165,7 +174,7 @@ public class Chat extends Thread {
         File file = new File(filepath);
         Upload up = new Upload(file);
         new Thread(up).start();
-        current.send(new Message("file", username, current.getName(), up.port + ":" + file.getName()));
+        current.send(new Message("file", username, current.name, up.port + ":" + file.getName()));
     }
 
     public boolean chatWith(String name) {
@@ -183,12 +192,9 @@ public class Chat extends Thread {
                 String[] ip_port = args[1].split(":");
                 Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
                 Peer p = new Peer(socket);
-                System.out.println("Start thread");
-                p.start();
-                System.out.println("Send hello message");
-                p.send(new Message("start", username, name, ""));
-                System.out.println("Add peer");
                 addPeer(name, p);
+                p.start();
+                p.send(new Message("start", username, (p.name = name), ""));
                 return setCurrent(name);
             }
         } catch (IOException e) {

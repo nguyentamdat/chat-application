@@ -66,7 +66,7 @@ public class ControllerLogin implements Initializable{
             String server = serverTF.getText();
             String username = usernameTF.getText();
             try  {
-                user.init(server, port,username );
+                if (user.init(server, port,username )) user.start();
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatInterface.fxml"));
                 Parent root = fxmlLoader.load();
                 mainSelect.getChildren().setAll(root);
@@ -75,6 +75,7 @@ public class ControllerLogin implements Initializable{
                 AnchorPane.setLeftAnchor(root, 0.0);
                 AnchorPane.setRightAnchor(root, 0.0);
                 ControllerChatInterface controller = fxmlLoader.getController();
+                user.controller = controller;
             }
             catch (Exception er) {
                 Alert alert = new Alert(AlertType.INFORMATION);
