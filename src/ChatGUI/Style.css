@@ -3,3 +3,6 @@
     -fx-background-color: linear-gradient( to right, #ffc3a0 , #ffafbd );
 
 }
+.list-view .list-cell {
+    -fx-background-color: transparent;
+}

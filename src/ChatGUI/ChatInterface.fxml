@@ -15,7 +15,7 @@
    <children>
       <AnchorPane prefHeight="400.0" prefWidth="164.0">
          <children>
-            <ListView fx:id="listViewFriend" layoutX="1.0" layoutY="57.0" prefHeight="343.0" prefWidth="171.0" style="-fx-background-color: transparent;" />
+            <ListView fx:id="listViewFriend" layoutX="1.0" layoutY="57.0" prefHeight="343.0" prefWidth="171.0" style="-fx-background-color: transparent;" stylesheets="@Style.css" />
             <JFXButton fx:id="btnRefresh" layoutX="22.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#onBtnRefreshClicked" onMouseEntered="#onbtnEnter" onMouseExited="#onbtnLeave" prefHeight="26.0" prefWidth="118.0" stylesheets="@Style.css" text="REFRESH" textFill="#ff000080">
                <font>
                   <Font name="Roboto Black" size="15.0" />
@@ -33,7 +33,7 @@
                   </Pane>
                   <ScrollPane prefHeight="282.0" prefWidth="637.0">
                      <content>
-                        <ListView fx:id="inbox" prefHeight="279.0" prefWidth="615.0" />
+                        <ListView fx:id="inbox" prefHeight="279.0" prefWidth="615.0" stylesheets="@Style.css" />
                      </content></ScrollPane>
                   <Pane prefHeight="62.0" prefWidth="617.0">
                      <children>
