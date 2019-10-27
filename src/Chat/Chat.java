@@ -16,7 +16,7 @@ public class Chat extends Thread {
     private Socket serverSocket;
     private BufferedReader dis;
     private PrintWriter dos;
-    private ConcurrentHashMap<String, Peer> peers;
+    public ConcurrentHashMap<String, Peer> peers;
     private Peer current;
     private ArrayList<Friend> listFriend;
 
@@ -193,7 +193,8 @@ public class Chat extends Thread {
         while (true) {
             try {
                 Socket socket = selfSocket.accept();
-
+                Peer peer = new Peer(socket);
+                peer.initChat();
             } catch (Exception e) {
                 System.out.println("Error Chat: run()");
             }

@@ -28,11 +28,17 @@ public class Peer extends Thread {
     public Peer(ServerSocket server) {
         this.server = server;
         port = server.getLocalPort();
+        try {
+            _socket = server.accept();
+            open();
+        } catch (IOException e) {
+            System.out.println("Error Peer: Peer(server)");
+        }
     }
 
     public Peer(Socket socket) {
         _socket = socket;
-        initIO();
+        open();
         String[] args = Utils.splitMsg(receiveMsg());
         if (args[0].equalsIgnoreCase("/start")) {
             name = args[1];
@@ -40,13 +46,26 @@ public class Peer extends Thread {
         }
     }
 
-    private void initIO() {
+    private void open() {
         try {
             in = new ObjectInputStream(_socket.getInputStream());
             out = new ObjectOutputStream(_socket.getOutputStream());
             out.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error Peer: open()");
+        }
+    }
+
+    public void initChat(){
+        try {
+            Message msg = (Message) in.readObject();
+            if (msg.getType().equalsIgnoreCase("start")) {
+                Socket socket = new Socket(_socket.getInetAddress(), Integer.parseInt(msg.getMessage()));
+            }
+        } catch (IOException e) {
+            System.out.println("Error Peer: initChat() - IO");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error Peer: initChat() - Class");
         }
     }
 
@@ -146,7 +165,7 @@ public class Peer extends Thread {
         return _socket.isConnected();
     }
 
-    private void disconnect() {
+    private void close() {
         try {
             if (in != null) in.close();
             if (out != null) out.close();
@@ -167,6 +186,6 @@ public class Peer extends Thread {
             }
             processMsg(receiveMsg());
         }
-        disconnect();
+        close();
     }
 }
