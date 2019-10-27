@@ -148,7 +148,7 @@ public class Chat extends Thread {
     }
 
     public void sendMsg(String msg) {
-        current.addPack(Utils.sendMsg(msg));
+        current.send(new Message("msg", username, current.getName(), msg));
     }
 
     public void sendFile(File file) {
@@ -172,8 +172,8 @@ public class Chat extends Thread {
                 Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
                 ServerSocket server = new ServerSocket(0);
                 Peer p = new Peer(server);
-                p.send(new Message("start", username, name, ""+p.port));
                 p.start();
+                new Peer(socket).send(new Message("start", username, name, ""+p.port + "," + username));
                 addPeer(name, p);
                 setCurrent(name);
                 return true;
@@ -195,6 +195,7 @@ public class Chat extends Thread {
                 Socket socket = selfSocket.accept();
                 Peer peer = new Peer(socket);
                 peer.initChat();
+
             } catch (Exception e) {
                 System.out.println("Error Chat: run()");
             }

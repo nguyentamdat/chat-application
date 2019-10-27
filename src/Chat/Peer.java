@@ -28,22 +28,11 @@ public class Peer extends Thread {
     public Peer(ServerSocket server) {
         this.server = server;
         port = server.getLocalPort();
-        try {
-            _socket = server.accept();
-            open();
-        } catch (IOException e) {
-            System.out.println("Error Peer: Peer(server)");
-        }
     }
 
     public Peer(Socket socket) {
         _socket = socket;
         open();
-        String[] args = Utils.splitMsg(receiveMsg());
-        if (args[0].equalsIgnoreCase("/start")) {
-            name = args[1];
-            Chat.getInstance().addPeer(args[1], this);
-        }
     }
 
     private void open() {
@@ -59,9 +48,17 @@ public class Peer extends Thread {
     public void initChat(){
         try {
             Message msg = (Message) in.readObject();
+            Socket socket;
             if (msg.getType().equalsIgnoreCase("start")) {
-                Socket socket = new Socket(_socket.getInetAddress(), Integer.parseInt(msg.getMessage()));
+                socket = new Socket(_socket.getInetAddress(), Integer.parseInt(msg.getMessage().split(",")[0]));
+                close();
+                _socket = socket;
+                open();
+                name = msg.getMessage().split(",")[1];
+                Chat.getInstance().addPeer(name, this);
+                return;
             }
+            throw new IOException();
         } catch (IOException e) {
             System.out.println("Error Peer: initChat() - IO");
         } catch (ClassNotFoundException e) {
@@ -90,14 +87,14 @@ public class Peer extends Thread {
         pack.add(msg);
     }
 
-    private String receiveMsg() {
+    private void receiveMsg() {
         try {
-            String msg = in.readLine();
-            System.out.println("msg: " + msg);
-            return msg;
+            Message msg = (Message) in.readObject();
+            inbox.add(msg);
         } catch (IOException e) {
-            e.printStackTrace();
-            return "";
+            System.out.println("Error Peer: receiveMsg() - IO");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error Peer: receiveMsg() - Class");
         }
     }
 
@@ -177,14 +174,17 @@ public class Peer extends Thread {
 
     @Override
     public void run() {
-        System.out.println("Start chat with " + name);
-        while (isConnected() && keepGo) {
+        if (server != null) {
             try {
-                senderProcess();
-            } catch (Exception e) {
-                e.printStackTrace();
+                _socket = server.accept();
+                open();
+            } catch (IOException e) {
+                System.out.println("Error Peer: run() - server");
             }
-            processMsg(receiveMsg());
+        }
+        System.out.println("Start receive from " + name);
+        while (isConnected() && keepGo) {
+                receiveMsg();
         }
         close();
     }
