@@ -1,0 +1,5 @@
+.jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-background-color: linear-gradient( to right, #ffc3a0 , #ffafbd );
+
+}

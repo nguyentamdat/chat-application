@@ -6,6 +6,7 @@ import java.net.URL;
 import java.io.IOException;
 import java.io.File;
 
+import com.jfoenix.controls.JFXButton;
 import org.apache.commons.lang3.StringUtils;
 import java.util.ResourceBundle;
 
@@ -47,7 +48,7 @@ import javafx.scene.control.TextField;
 public class ControllerLogin implements Initializable{
     Chat user = Chat.getInstance();
     @FXML
-    Button btnLogin;
+    JFXButton btnLogin;
     @FXML
     TextField portTF, serverTF, usernameTF;
     public AnchorPane mainSelect;
