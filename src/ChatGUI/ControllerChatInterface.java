@@ -9,24 +9,21 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.stage.Window;
 
 import java.io.File;
@@ -34,9 +31,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ControllerChatInterface implements Initializable {
-    private Chat user = Chat.getInstance();
-    private ObservableList<Friend> listFriend;
-    private ObservableList<Message> inboxList;
     @FXML
     JFXButton btnFile;
     @FXML
@@ -49,6 +43,9 @@ public class ControllerChatInterface implements Initializable {
     TextField inputChat;
     @FXML
     ListView<Message> inbox;
+    private Chat user = Chat.getInstance();
+    private ObservableList<Friend> listFriend;
+    private ObservableList<Message> inboxList;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -57,38 +54,33 @@ public class ControllerChatInterface implements Initializable {
         listViewFriend.setItems(listFriend);
         inbox.setCellFactory(lv -> new InboxCell());
         inboxList = user.listMsg;
+        inbox.setItems(inboxList);
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
-                String name = t1.getName();
-                System.out.println("Selection change to " + name);
-                lblName.setText(name);
-                lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 14 ));
-                lblName.setTextFill(Color.rgb(255,0,0,0.5));
-                if (t1.isStatus()) {
-                    System.out.println("Starting chatting");
-                    if (!user.chatWith(name)) {
+                if (t1 != null) {
+                    String name = t1.getName();
+                    System.out.println("Selection change to " + name);
+                    lblName.setText(name);
+                    lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 14));
+                    lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
+                    if (t1.isStatus()) {
+                        System.out.println("Starting chatting");
+                        if (!user.chatWith(name)) {
+                            inputChat.setText("User offline!");
+                            inputChat.setDisable(true);
+                        } else {
+                            inputChat.setText("");
+                            inputChat.setDisable(false);
+                        }
+                    } else {
                         inputChat.setText("User offline!");
                         inputChat.setDisable(true);
-                    } else {
-                        inputChat.setText("");
-                        inputChat.setDisable(false);
                     }
-                }
-                else {
-                    inputChat.setText("User offline!");
-                    inputChat.setDisable(true);
                 }
             }
         });
-
-        btnFile.setOnMouseClicked(event -> {
-            Window stage = ((Node)event.getTarget()).getScene().getWindow();
-            Button button = (Button)event.getSource();
-            FileChooser fil_chooser = new FileChooser();
-            File file = fil_chooser.showOpenDialog(stage);
-            String filepath = file.getAbsolutePath();
-        });
+        listViewFriend.setBackground(Background.EMPTY);
     }
 
     @FXML
@@ -116,18 +108,12 @@ public class ControllerChatInterface implements Initializable {
     }
 
     @FXML
-    public void onBtnClicked(MouseEvent e) {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("RegisterConnect.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 500, 250);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (Exception er) {
-            er.printStackTrace();
-        }
+    public void onBtnFileClicked(MouseEvent e) {
+        Window stage = ((Node) e.getTarget()).getScene().getWindow();
+        Button button = (Button) e.getSource();
+        FileChooser fil_chooser = new FileChooser();
+        File file = fil_chooser.showOpenDialog(stage);
+        String filepath = file.getAbsolutePath();
     }
 
     @FXML
@@ -138,6 +124,30 @@ public class ControllerChatInterface implements Initializable {
         } catch (Exception er) {
             er.printStackTrace();
         }
+    }
+
+    @FXML
+    public void onbtnEnter(MouseEvent e) {
+        Button button = (Button) e.getSource();
+        Glow glowfx = new Glow();
+        glowfx.setLevel(1);
+        //Instantiating the Shadow class
+        DropShadow dropShadow = new DropShadow();
+        //dropShadow.setBlurType(BlurType.GAUSSIAN);
+        dropShadow.setColor(Color.WHITE);
+        dropShadow.setHeight(20);
+        dropShadow.setWidth(20);
+        dropShadow.setRadius(2.5);
+        dropShadow.setSpread(10);
+        button.setEffect(dropShadow);
+    }
+
+    @FXML
+    public void onbtnLeave(MouseEvent e) {
+        Button button = (Button) e.getSource();
+        Glow glowfx = new Glow();
+        glowfx.setLevel(0);
+        button.setEffect(null);
     }
 
     public class FriendCell extends ListCell<Friend> {
@@ -159,13 +169,14 @@ public class ControllerChatInterface implements Initializable {
                 setGraphic(null);
             } else {
                 lblName.setText(friend.getName());
-                lblName.setFont(Font.font("Roboto",14));
+                lblName.setFont(Font.font("Roboto", 14));
                 lblName.setTextFill(Color.WHITE);
                 state.setFill(friend.isStatus() ? Color.GREEN : Color.RED);
                 setGraphic(box);
             }
         }
     }
+
     public class InboxCell extends ListCell<Message> {
         private Label lblMsg, lblUser;
         private HBox box;
@@ -184,35 +195,11 @@ public class ControllerChatInterface implements Initializable {
             if (msg == null || b) {
                 setGraphic(null);
             } else {
-                lblUser.setText(msg.getFrom()+ ":");
-                lblUser.setFont(Font.font("Roboto",14));
+                lblUser.setText(msg.getFrom() + ":");
+                lblUser.setFont(Font.font("Roboto", 14));
                 lblMsg.setText(msg.getMessage());
                 setGraphic(box);
             }
         }
-    }
-    @FXML
-    public void onbtnEnter(MouseEvent e) {
-        Button button = (Button)e.getSource();
-        Glow glowfx = new Glow();
-        glowfx.setLevel(1);
-        //Instantiating the Shadow class
-        DropShadow dropShadow = new DropShadow();
-        //dropShadow.setBlurType(BlurType.GAUSSIAN);
-        dropShadow.setColor(Color.WHITE);
-        dropShadow.setHeight(20);
-        dropShadow.setWidth(20);
-        dropShadow.setRadius(2.5);
-        dropShadow.setSpread(10);
-        button.setEffect(dropShadow);
-    }
-
-
-    @FXML
-    public void onbtnLeave(MouseEvent e) {
-        Button button = (Button)e.getSource();
-        Glow glowfx = new Glow();
-        glowfx.setLevel(0);
-        button.setEffect(null);
     }
 }
