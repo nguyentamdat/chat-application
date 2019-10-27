@@ -8,9 +8,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -20,10 +23,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -94,18 +101,12 @@ public class ControllerChatInterface implements Initializable {
     }
 
     @FXML
-    public void onBtnClicked(MouseEvent e) {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("RegisterConnect.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 500, 250);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.show();
+    public void onBtnFileClicked(MouseEvent e) {
+        Window stage = ((Node)e.getTarget()).getScene().getWindow();
+        Button button = (Button)e.getSource();
+        FileChooser fil_chooser = new FileChooser();
+        File file = fil_chooser.showOpenDialog(stage);
 
-        } catch (Exception er) {
-            er.printStackTrace();
-        }
     }
 
     @FXML
@@ -137,7 +138,10 @@ public class ControllerChatInterface implements Initializable {
                 setGraphic(null);
             } else {
                 lblName.setText(friend.getName());
+                lblName.setFont(Font.font("Roboto",14));
+                lblName.setTextFill(Color.WHITE);
                 state.setFill(friend.isStatus() ? Color.GREEN : Color.RED);
+
                 setGraphic(box);
             }
         }
