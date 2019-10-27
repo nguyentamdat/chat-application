@@ -32,6 +32,7 @@ public class Chat extends Thread {
     public static Chat getInstance() {
         if (instance == null) {
             instance = new Chat();
+            instance.setDaemon(true);
         }
         return instance;
     }
@@ -192,6 +193,7 @@ public class Chat extends Thread {
                 Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
                 Peer p = new Peer(socket);
                 addPeer(name, p);
+                p.setDaemon(true);
                 p.start();
                 p.send(new Message("start", username, (p.name = name), ""));
                 return setCurrent(name);
@@ -207,7 +209,9 @@ public class Chat extends Thread {
         while (true) {
             try {
                 Socket socket = selfSocket.accept();
-                new Peer(socket).start();
+                Peer p = new Peer(socket);
+                p.setDaemon(true);
+                p.start();
                 System.out.println("Port accept: " + socket.getLocalPort());
             } catch (Exception e) {
                 System.out.println("Error Chat: run()");

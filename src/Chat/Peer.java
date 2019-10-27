@@ -98,6 +98,15 @@ public class Peer extends Thread {
             case "file":
                 String[] msgSep = msg.getMessage().split(":");
                 new Thread(new Download(_socket.getInetAddress(), Integer.parseInt(msgSep[0]), "./" + msgSep[1])).start();
+                inbox.add(msg);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Chat.getInstance().setCurrent(name);
+                        Chat.getInstance().controller.setLblName(name);
+                        addToListMsg(msg);
+                    }
+                });
                 break;
             case "start":
                 name = msg.getFrom();
