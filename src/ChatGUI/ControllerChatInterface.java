@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -21,6 +22,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -58,7 +61,15 @@ public class ControllerChatInterface implements Initializable {
         listViewFriend.setItems(listFriend);
         inbox.setItems(user.getListMsg());
         inbox.setCellFactory(lv -> new InboxCell());
-        lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 14));
+        lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 20));
+        lblName.setBackground(new Background(new BackgroundFill(
+                Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(5.0);
+        dropShadow.setOffsetX(3.0);
+        dropShadow.setOffsetY(3.0);
+        dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+        lblName.setEffect(dropShadow);
         lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
@@ -179,6 +190,8 @@ public class ControllerChatInterface implements Initializable {
                 lblName.setFont(Font.font("Roboto", 14));
                 lblName.setTextFill(Color.WHITE);
                 state.setFill(friend.isStatus() ? Color.GREEN : Color.RED);
+                box.setBackground(new Background(new BackgroundFill(
+                        Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                 setGraphic(box);
             }
         }
@@ -208,8 +221,12 @@ public class ControllerChatInterface implements Initializable {
                 if (msg.getFrom().equalsIgnoreCase(user.getUsername())) {
                     box = new HBox(lblMsg);
                     box.setAlignment(Pos.CENTER_RIGHT);
+                    box.setBackground(new Background(new BackgroundFill(
+                            Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                 } else {
                     box = new HBox(lblMsg);
+                    box.setBackground(new Background(new BackgroundFill(
+                            Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                 }
                 setGraphic(box);
             }
