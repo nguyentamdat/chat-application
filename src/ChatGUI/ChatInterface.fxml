@@ -31,7 +31,7 @@
                         <Label fx:id="lblName" layoutY="27.0" prefHeight="31.0" prefWidth="89.0" />
                      </children>
                   </Pane>
-                  <ScrollPane prefHeight="282.0" prefWidth="637.0" style="-fx-background-color: transparent;">
+                  <ScrollPane fx:id="Panel" stylesheets="@Style.css" prefHeight="282.0" prefWidth="637.0" style="-fx-background-color: transparent;">
                      <content>
                         <ListView fx:id="inbox" prefHeight="279.0" prefWidth="615.0" stylesheets="@Style.css" />
                      </content></ScrollPane>

@@ -46,7 +46,8 @@ public class ControllerChatInterface implements Initializable {
     ListView<Friend> listViewFriend;
     @FXML
     Label lblName;
-
+    @FXML
+    ScrollPane Panel;
     @FXML
     TextField inputChat;
     @FXML
@@ -57,6 +58,7 @@ public class ControllerChatInterface implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         listViewFriend.setCellFactory(lv -> new FriendCell());
         listFriend = FXCollections.observableList(user.getListFriend());
         listViewFriend.setItems(listFriend);
@@ -71,12 +73,12 @@ public class ControllerChatInterface implements Initializable {
                     String name = t1.getName();
                     System.out.println("Selection change to " + name);
                     lblName.setBackground(new Background(new BackgroundFill(
-                            Color.rgb(100,79,69), CornerRadii.EMPTY, Insets.EMPTY)));
+                            Color.rgb(255,205,172), CornerRadii.EMPTY, Insets.EMPTY)));
                     DropShadow dropShadow = new DropShadow();
                     dropShadow.setRadius(5.0);
                     dropShadow.setOffsetX(3.0);
                     dropShadow.setOffsetY(3.0);
-                    dropShadow.setColor(Color.rgb(255,255,255, 0.75));
+                    dropShadow.setColor(Color.gray(0.865));
                     lblName.setEffect(dropShadow);
                     lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
                     lblName.setAlignment(Pos.CENTER);
