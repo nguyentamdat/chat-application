@@ -63,18 +63,6 @@ public class ControllerChatInterface implements Initializable {
         inbox.setItems(user.getListMsg());
         inbox.setCellFactory(lv -> new InboxCell());
         lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 20));
-        lblName.setBackground(new Background(new BackgroundFill(
-                Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        DropShadow dropShadow = new DropShadow();
-        dropShadow.setRadius(5.0);
-        dropShadow.setOffsetX(3.0);
-        dropShadow.setOffsetY(3.0);
-        dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
-        lblName.setEffect(dropShadow);
-        lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
-        lblName.setAlignment(Pos.CENTER);
-        listViewFriend.setBackground(new Background(new BackgroundFill(
-                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
@@ -214,8 +202,16 @@ public class ControllerChatInterface implements Initializable {
         @Override
         protected void updateItem(Message msg, boolean b) {
             super.updateItem(msg, b);
-            inbox.setBackground(new Background(new BackgroundFill(
-                    Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+            lblName.setBackground(new Background(new BackgroundFill(
+                    Color.rgb(100,39,22,0.5), CornerRadii.EMPTY, Insets.EMPTY)));
+            DropShadow dropShadow = new DropShadow();
+            dropShadow.setRadius(5.0);
+            dropShadow.setOffsetX(3.0);
+            dropShadow.setOffsetY(3.0);
+            dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+            lblName.setEffect(dropShadow);
+            lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
+            lblName.setAlignment(Pos.CENTER);
             if (msg == null || b) {
                 setGraphic(null);
             } else {
