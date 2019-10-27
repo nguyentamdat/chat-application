@@ -71,6 +71,7 @@ public class Peer extends Thread {
             return (Message) in.readObject();
         } catch (IOException e) {
             System.out.println("Error Peer: receiveMsg() - IO");
+            keepGo = false;
         } catch (ClassNotFoundException e) {
             System.out.println("Error Peer: receiveMsg() - Class");
         }
