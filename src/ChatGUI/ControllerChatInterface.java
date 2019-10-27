@@ -70,6 +70,16 @@ public class ControllerChatInterface implements Initializable {
                 if (t1 != null) {
                     String name = t1.getName();
                     System.out.println("Selection change to " + name);
+                    lblName.setBackground(new Background(new BackgroundFill(
+                            Color.rgb(100,79,69), CornerRadii.EMPTY, Insets.EMPTY)));
+                    DropShadow dropShadow = new DropShadow();
+                    dropShadow.setRadius(5.0);
+                    dropShadow.setOffsetX(3.0);
+                    dropShadow.setOffsetY(3.0);
+                    dropShadow.setColor(Color.rgb(255,255,255, 0.75));
+                    lblName.setEffect(dropShadow);
+                    lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
+                    lblName.setAlignment(Pos.CENTER);
                     lblName.setText(name);
                     if (t1.isStatus()) {
                         System.out.println("Starting chatting");
@@ -202,16 +212,7 @@ public class ControllerChatInterface implements Initializable {
         @Override
         protected void updateItem(Message msg, boolean b) {
             super.updateItem(msg, b);
-            lblName.setBackground(new Background(new BackgroundFill(
-                    Color.rgb(100,39,22,0.5), CornerRadii.EMPTY, Insets.EMPTY)));
-            DropShadow dropShadow = new DropShadow();
-            dropShadow.setRadius(5.0);
-            dropShadow.setOffsetX(3.0);
-            dropShadow.setOffsetY(3.0);
-            dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
-            lblName.setEffect(dropShadow);
-            lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
-            lblName.setAlignment(Pos.CENTER);
+
             if (msg == null || b) {
                 setGraphic(null);
             } else {
