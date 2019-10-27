@@ -24,6 +24,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -63,6 +64,8 @@ public class ControllerChatInterface implements Initializable {
                 String name = t1.getName();
                 System.out.println("Selection change to " + name);
                 lblName.setText(name);
+                lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 14 ));
+                lblName.setTextFill(Color.rgb(255,0,0,0.5));
                 if (!user.chatWith(name)) {
                     inputChat.setText("User offline!");
                     inputChat.setDisable(true);
@@ -74,11 +77,13 @@ public class ControllerChatInterface implements Initializable {
                 }
             }
         });
+
         btnFile.setOnMouseClicked(event -> {
             Window stage = ((Node)event.getTarget()).getScene().getWindow();
             Button button = (Button)event.getSource();
             FileChooser fil_chooser = new FileChooser();
             File file = fil_chooser.showOpenDialog(stage);
+            String filepath = file.getAbsolutePath();
         });
     }
 
@@ -122,6 +127,7 @@ public class ControllerChatInterface implements Initializable {
         }
     }
 
+
     public class FriendCell extends ListCell<Friend> {
         private Label lblName;
         private Circle state = new Circle(2.0f,Color.GRAY);
@@ -151,13 +157,13 @@ public class ControllerChatInterface implements Initializable {
     }
     public class InboxCell extends ListCell<Message> {
         private Label lblMsg, lblUser;
-        private VBox box;
+        private HBox box;
 
         public InboxCell() {
             setPrefHeight(20);
             lblMsg = new Label();
             lblUser = new Label();
-            box = new VBox(lblUser, lblMsg);
+            box = new HBox(lblUser, lblMsg);
         }
 
         @Override
@@ -167,7 +173,8 @@ public class ControllerChatInterface implements Initializable {
             if (msg == null || b) {
                 setGraphic(null);
             } else {
-                lblUser.setText(msg.getFrom());
+                lblUser.setText(msg.getFrom()+ ":");
+                lblUser.setFont(Font.font("Roboto",14));
                 lblMsg.setText(msg.getMessage());
                 setGraphic(box);
             }
