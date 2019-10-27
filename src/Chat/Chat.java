@@ -7,20 +7,21 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Chat extends Thread {
     private static Chat instance;
+    public ConcurrentHashMap<String, Peer> peers;
+    public volatile ObservableList<Message> listMsg = FXCollections.observableArrayList();
     private int port;
     private String servername, username;
     private ServerSocket selfSocket;
     private Socket serverSocket;
     private BufferedReader dis;
     private PrintWriter dos;
-    public ConcurrentHashMap<String, Peer> peers;
     private Peer current;
     private ArrayList<Friend> listFriend;
-    public ObservableList<Message> listMsg = FXCollections.observableArrayList();
 
     private Chat() {
         peers = new ConcurrentHashMap<>(200);
@@ -33,15 +34,15 @@ public class Chat extends Thread {
         return instance;
     }
 
-    public void setListMsg() {
-        listMsg = current.inbox;
+    public ObservableList<Message> getListMsg() {
+        return listMsg;
+
     }
 
     public boolean setCurrent(String name) {
         Peer res;
         if ((res = peers.get(name)) != null) {
             current = res;
-            setListMsg();
             return true;
         }
         return false;

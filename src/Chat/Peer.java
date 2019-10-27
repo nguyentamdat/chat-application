@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Peer extends Thread {
 
     final BlockingQueue<String> pack = new LinkedBlockingQueue<>(4096);
-    public ObservableList<Message> inbox = FXCollections.observableArrayList();
+    public volatile ObservableList<Message> inbox = Chat.getInstance().getListMsg();
     public int port;
     private Socket _socket;
     private ObjectInputStream in;
@@ -48,7 +48,7 @@ public class Peer extends Thread {
             System.out.println("Send from: " + _socket.getLocalPort() + " to " + _socket.getPort());
             out.writeObject(msg);
             out.flush();
-            inbox.add(msg);
+            if (msg.getMessage()) inbox.add(msg);
         } catch (IOException e) {
             System.out.println("Error Peer: send()");
             e.printStackTrace();

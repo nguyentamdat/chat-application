@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -43,18 +44,17 @@ public class ControllerChatInterface implements Initializable {
     TextField inputChat;
     @FXML
     ListView<Message> inbox;
+
     private Chat user = Chat.getInstance();
     private ObservableList<Friend> listFriend;
-    private ObservableList<Message> inboxList;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         listViewFriend.setCellFactory(lv -> new FriendCell());
         listFriend = FXCollections.observableList(user.getListFriend());
         listViewFriend.setItems(listFriend);
+        inbox.setItems(user.getListMsg());
         inbox.setCellFactory(lv -> new InboxCell());
-        inboxList = user.listMsg;
-        inbox.setItems(inboxList);
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
@@ -185,7 +185,6 @@ public class ControllerChatInterface implements Initializable {
             setPrefHeight(20);
             lblMsg = new Label();
             lblUser = new Label();
-            box = new HBox(lblUser, lblMsg);
         }
 
         @Override
@@ -195,9 +194,16 @@ public class ControllerChatInterface implements Initializable {
             if (msg == null || b) {
                 setGraphic(null);
             } else {
-                lblUser.setText(msg.getFrom() + ":");
+                lblUser.setText(msg.getFrom());
                 lblUser.setFont(Font.font("Roboto", 14));
                 lblMsg.setText(msg.getMessage());
+                lblMsg.setFont(Font.font("Roboto", 14));
+                if (msg.getFrom().equalsIgnoreCase(user.getUsername())) {
+                    box = new HBox(lblUser, lblMsg);
+                    box.setAlignment(Pos.CENTER_RIGHT);
+                } else {
+                    box = new HBox(lblMsg, lblUser);
+                }
                 setGraphic(box);
             }
         }
