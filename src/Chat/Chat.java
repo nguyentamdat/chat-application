@@ -1,5 +1,6 @@
 package Chat;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.*;
@@ -19,9 +20,10 @@ public class Chat extends Thread {
     public ConcurrentHashMap<String, Peer> peers;
     private Peer current;
     private ArrayList<Friend> listFriend;
+    public ObservableList<Message> listMsg = FXCollections.observableArrayList();
 
     private Chat() {
-        peers = new ConcurrentHashMap<>();
+        peers = new ConcurrentHashMap<>(200);
     }
 
     public static Chat getInstance() {
@@ -31,10 +33,15 @@ public class Chat extends Thread {
         return instance;
     }
 
+    public void setListMsg() {
+        listMsg = current.inbox;
+    }
+
     public boolean setCurrent(String name) {
         Peer res;
         if ((res = peers.get(name)) != null) {
             current = res;
+            setListMsg();
             return true;
         }
         return false;
@@ -137,7 +144,7 @@ public class Chat extends Thread {
             if (res.equalsIgnoreCase("LIST")) {
                 String[] args;
                 while (!(res = dis.readLine()).equalsIgnoreCase("END")) {
-                    args = Utils.splitMsg(res);
+                    args = res.split(" ");
                     list.add(new Friend(args[0], args[1].equalsIgnoreCase("true")));
                 }
             }
@@ -148,12 +155,16 @@ public class Chat extends Thread {
     }
 
     public void sendMsg(String msg) {
+        System.out.println("Sending message: " + msg);
         current.send(new Message("msg", username, current.getName(), msg));
+        System.out.println("Sent");
     }
 
-    public void sendFile(File file) {
-        current.addFile(file);
-        current.addPack(Utils.sendFile(file.getName()));
+    public void sendFile(String filepath) {
+        File file = new File(filepath);
+        Upload up = new Upload(file);
+        new Thread(up).start();
+        current.send(new Message("file", username, current.getName(), up.port + ":" + file.getName()));
     }
 
     public boolean chatWith(String name) {
@@ -170,13 +181,14 @@ public class Chat extends Thread {
             if (args[0].equalsIgnoreCase("FOUND")) {
                 String[] ip_port = args[1].split(":");
                 Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
-                ServerSocket server = new ServerSocket(0);
-                Peer p = new Peer(server);
+                Peer p = new Peer(socket);
+                System.out.println("Start thread");
                 p.start();
-                new Peer(socket).send(new Message("start", username, name, ""+p.port + "," + username));
+                System.out.println("Send hello message");
+                p.send(new Message("start", username, name, ""));
+                System.out.println("Add peer");
                 addPeer(name, p);
-                setCurrent(name);
-                return true;
+                return setCurrent(name);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -184,18 +196,13 @@ public class Chat extends Thread {
         return false;
     }
 
-    public ObservableList<Message> getInbox() {
-        return current != null ? current.inbox : null;
-    }
-
     @Override
     public void run() {
         while (true) {
             try {
                 Socket socket = selfSocket.accept();
-                Peer peer = new Peer(socket);
-                peer.initChat();
-
+                new Peer(socket).start();
+                System.out.println("Port accept: " + socket.getLocalPort());
             } catch (Exception e) {
                 System.out.println("Error Chat: run()");
             }

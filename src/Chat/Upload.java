@@ -7,21 +7,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Upload implements Runnable {
-    public String addr;
     public int port;
     public FileInputStream in;
     public DataOutputStream out;
+    public ServerSocket server;
     public File file;
     public Socket socket;
 
-    public Upload(String addr, int port, File filepath) {
+
+    public Upload(File file) {
         try {
-            file = filepath;
-            this.addr = addr;
-            this.port = port;
+            server = new ServerSocket(0);
+            port = server.getLocalPort();
+            this.file = file;
         } catch (Exception e) {
             System.out.println("Error Upload: Upload()");
         }
@@ -30,7 +32,7 @@ public class Upload implements Runnable {
     @Override
     public void run() {
         try {
-            socket = new Socket(InetAddress.getByName(addr), port);
+            socket = server.accept();
             out = new DataOutputStream(socket.getOutputStream());
             in = new FileInputStream(file);
             IOUtils.copy(in,out);

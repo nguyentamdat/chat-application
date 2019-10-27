@@ -2,33 +2,29 @@ package Chat;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class Peer extends Thread {
 
-    public ObservableList<Message> inbox = FXCollections.observableArrayList();
     final BlockingQueue<String> pack = new LinkedBlockingQueue<>(4096);
+    public ObservableList<Message> inbox = FXCollections.observableArrayList();
     public int port;
-    private Socket _socket = null;
+    private Socket _socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
-    private ConcurrentHashMap<String, File> files;
     private String name;
-    private boolean keepGo;
-    private ServerSocket server = null;
-
-    public Peer(ServerSocket server) {
-        this.server = server;
-        port = server.getLocalPort();
-    }
+    private boolean keepGo = true;
 
     public Peer(Socket socket) {
         _socket = socket;
@@ -37,49 +33,25 @@ public class Peer extends Thread {
 
     private void open() {
         try {
-            in = new ObjectInputStream(_socket.getInputStream());
+            System.out.println("Initialize IO");
             out = new ObjectOutputStream(_socket.getOutputStream());
             out.flush();
+            in = new ObjectInputStream(_socket.getInputStream());
+            System.out.println("IO done");
         } catch (IOException e) {
             System.out.println("Error Peer: open()");
         }
     }
 
-    public void initChat(){
-        try {
-            Message msg = (Message) in.readObject();
-            Socket socket;
-            if (msg.getType().equalsIgnoreCase("start")) {
-                socket = new Socket(_socket.getInetAddress(), Integer.parseInt(msg.getMessage().split(",")[0]));
-                close();
-                _socket = socket;
-                open();
-                name = msg.getMessage().split(",")[1];
-                Chat.getInstance().addPeer(name, this);
-                return;
-            }
-            throw new IOException();
-        } catch (IOException e) {
-            System.out.println("Error Peer: initChat() - IO");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Error Peer: initChat() - Class");
-        }
-    }
-
-    public void addFile(File file) {
-        files.put(file.getName(), file);
-    }
-
-    public File getFile(String name) {
-        return files.get(name);
-    }
-
     public void send(Message msg) {
         try {
+            System.out.println("Send from: " + _socket.getLocalPort() + " to " + _socket.getPort());
             out.writeObject(msg);
+            out.flush();
             inbox.add(msg);
         } catch (IOException e) {
             System.out.println("Error Peer: send()");
+            e.printStackTrace();
         }
     }
 
@@ -87,74 +59,40 @@ public class Peer extends Thread {
         pack.add(msg);
     }
 
-    private void receiveMsg() {
+    private Message receiveMsg() {
         try {
-            Message msg = (Message) in.readObject();
-            inbox.add(msg);
+            System.out.println("Receive from: " + _socket.getPort() + " to " + _socket.getLocalPort());
+            return (Message) in.readObject();
         } catch (IOException e) {
             System.out.println("Error Peer: receiveMsg() - IO");
         } catch (ClassNotFoundException e) {
             System.out.println("Error Peer: receiveMsg() - Class");
         }
+        return null;
     }
 
-    private void receiveFile(String filename) {
-        try {
-            DataInputStream fis = new DataInputStream(_socket.getInputStream());
-            FileOutputStream fos = new FileOutputStream(new File("./" + filename));
-            IOUtils.copy(fis, fos);
-            fos.close();
-            fis.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void processMsg(String msg) {
-        String type = Utils.getType(msg);
-        if (!type.equalsIgnoreCase("/bye")) {
-            switch (type) {
-                case "/msg": {
-                    break;
-                }
-                case "/file": {
-                    receiveFile(Utils.splitMsg(msg)[1]);
-                    break;
-                }
-            }
-        }
-    }
-
-    private void sendFile(File file) {
-        try {
-            sendHeaderFile(file.getName());
-            FileInputStream fis = new FileInputStream(file);
-            DataOutputStream fos = new DataOutputStream(_socket.getOutputStream());
-            IOUtils.copy(fis, fos);
-            fis.close();
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void sendHeaderFile(String name) {
-    }
-
-    private void senderProcess() throws InterruptedException {
-        String packet = pack.poll(1, TimeUnit.SECONDS);
-        if (packet != null) {
-            String type = Utils.getType(packet);
-            System.out.println(type);
-            if (type.equalsIgnoreCase("/msg")) {
-            }
-            if (type.equalsIgnoreCase("/file")) {
-                String name = Utils.splitMsg(packet)[1];
-                sendHeaderFile(name);
-                sendFile(files.get(name));
-            }
-            keepGo = !type.equalsIgnoreCase("/bye");
+    private void processMsg(Message msg) {
+        if (msg == null) return;
+        String type = msg.getType();
+        switch (type) {
+            case "bye":
+                keepGo = false;
+                break;
+            case "msg":
+                inbox.add(msg);
+                break;
+            case "file":
+                String[] msgSep = msg.getMessage().split(":");
+                new Thread(new Download(_socket.getInetAddress(), Integer.parseInt(msgSep[0]), "./" + msgSep[1])).start();
+                break;
+            case "start":
+                name = msg.getFrom();
+                Chat.getInstance().addPeer(name, this);
+                send(new Message("hello", Chat.getInstance().getUsername(), name, ""));
+                Chat.getInstance().setCurrent(name);
+                break;
+            case "hello":
+                break;
         }
     }
 
@@ -174,17 +112,9 @@ public class Peer extends Thread {
 
     @Override
     public void run() {
-        if (server != null) {
-            try {
-                _socket = server.accept();
-                open();
-            } catch (IOException e) {
-                System.out.println("Error Peer: run() - server");
-            }
-        }
-        System.out.println("Start receive from " + name);
+        System.out.println("Start receive from " + _socket.getPort());
         while (isConnected() && keepGo) {
-                receiveMsg();
+            processMsg(receiveMsg());
         }
         close();
     }

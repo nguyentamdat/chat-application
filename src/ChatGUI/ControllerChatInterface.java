@@ -16,18 +16,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ControllerChatInterface implements Initializable {
-    private Chat user = Chat.getInstance();
-    private ObservableList<Friend> listFriend;
-    private ObservableList<Message> inboxList;
     @FXML
     Button btnAdd;
     @FXML
@@ -40,6 +36,9 @@ public class ControllerChatInterface implements Initializable {
     TextField inputChat;
     @FXML
     ListView<Message> inbox;
+    private Chat user = Chat.getInstance();
+    private ObservableList<Friend> listFriend;
+    private ObservableList<Message> inboxList;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -47,21 +46,26 @@ public class ControllerChatInterface implements Initializable {
         listFriend = FXCollections.observableList(user.getListFriend());
         listViewFriend.setItems(listFriend);
         inbox.setCellFactory(lv -> new InboxCell());
+        inboxList = user.listMsg;
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
                 String name = t1.getName();
                 System.out.println("Selection change to " + name);
                 lblName.setText(name);
-                if (!user.chatWith(name)) {
-                    inputChat.setText("User offline!");
-                    inputChat.setDisable(true);
+                if (t1.isStatus()) {
+                    System.out.println("Starting chatting");
+                    if (!user.chatWith(name)) {
+                        inputChat.setText("User offline!");
+                        inputChat.setDisable(true);
+                    } else {
+                        inputChat.setText("");
+                        inputChat.setDisable(false);
+                    }
                 }
                 else {
-                    inputChat.setText("");
-                    inputChat.setDisable(false);
-                    inboxList.clear();
-                    inboxList.addAll(user.getInbox());
+                    inputChat.setText("User offline!");
+                    inputChat.setDisable(true);
                 }
             }
         });
@@ -118,7 +122,7 @@ public class ControllerChatInterface implements Initializable {
 
     public class FriendCell extends ListCell<Friend> {
         private Label lblName;
-        private Circle state = new Circle(2.0f,Color.GRAY);
+        private Circle state = new Circle(2.0f, Color.GRAY);
         private HBox box;
 
         public FriendCell() {
@@ -140,6 +144,7 @@ public class ControllerChatInterface implements Initializable {
             }
         }
     }
+
     public class InboxCell extends ListCell<Message> {
         private Label lblMsg, lblUser;
         private HBox box;

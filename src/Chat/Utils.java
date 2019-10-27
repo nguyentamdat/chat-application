@@ -1,34 +1,48 @@
 package Chat;
 
 
+import com.sun.webkit.network.Util;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 public class Utils {
-    public static String makeMsg(String type , String[] str) {
-        StringBuilder typeBuilder = new StringBuilder(type);
-        for (String i : str) {
-            typeBuilder.append(" ").append(i);
+    public Socket socket;
+    public ObjectInputStream in;
+    public ObjectOutputStream out;
+
+    public Utils(Socket sk) {
+        socket = sk;
+        try {
+            in = new ObjectInputStream(socket.getInputStream());
+            out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+        } catch (IOException e) {
+            System.out.println("Error Utils: Utils()");
         }
-        type = typeBuilder.toString();
-        return type;
     }
 
-    static String[] splitMsg(String msg) {
-        return msg.split(" ");
+    public Message read() {
+        try {
+            return (Message) in.readObject();
+        } catch (IOException e) {
+            System.out.println("Error Utils: read() - IO");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error Utils: read() - Class");
+        }
+        return null;
     }
 
-    static String getType(String msg) {
-        return splitMsg(msg)[0];
-    }
-
-    static String sendMsg(String msg) {
-        String[] msgs = { msg };
-        return makeMsg("/msg", msgs);
-    }
-
-    static String sendFile(String name) {
-        String[] msgs = { name };
-        return makeMsg("/file", msgs);
+    public void write(Message msg) {
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            System.out.println("Error Utils: write()");
+        }
     }
 }
 

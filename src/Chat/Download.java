@@ -4,22 +4,23 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.DataInputStream;
 import java.io.FileOutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Download implements Runnable {
-    public int port;
-    public ServerSocket server;
     public Socket socket;
     public DataInputStream in;
     public FileOutputStream out;
     public String saveTo = "";
+    public InetAddress addr;
+    public int port;
 
-    public Download(String saveTo) {
+    public Download(InetAddress addr, int port,String saveTo) {
         try {
-            server = new ServerSocket(0);
-            port = server.getLocalPort();
+            this.addr = addr;
             this.saveTo = saveTo;
+            this.port = port;
         } catch (Exception e) {
             System.out.println("Error Download: Download()");
         }
@@ -28,7 +29,7 @@ public class Download implements Runnable {
     @Override
     public void run() {
         try {
-            socket = server.accept();
+            socket = new Socket(addr, port);
             in = new DataInputStream(socket.getInputStream());
             out = new FileOutputStream(saveTo);
             IOUtils.copy(in, out);
