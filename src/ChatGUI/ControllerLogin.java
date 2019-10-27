@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.File;
 
 import com.jfoenix.controls.JFXButton;
+import javafx.scene.effect.BlurType;
 import org.apache.commons.lang3.StringUtils;
 import java.util.ResourceBundle;
 
@@ -90,6 +91,28 @@ public class ControllerLogin implements Initializable{
             alert.setContentText("Please enter full value");
             alert.showAndWait();
         }
+    }
+    @FXML
+    public void onbtnEnter(MouseEvent e) {
+        Button button = (Button)e.getSource();
+        Glow glowfx = new Glow();
+        glowfx.setLevel(1);
+        //Instantiating the Shadow class
+        DropShadow dropShadow = new DropShadow();
+        //dropShadow.setBlurType(BlurType.GAUSSIAN);
+        dropShadow.setColor(Color.WHITE);
+        dropShadow.setHeight(20);
+        dropShadow.setWidth(20);
+        dropShadow.setRadius(2.5);
+        dropShadow.setSpread(10);
+        button.setEffect(dropShadow);
+    }
+
+
+    @FXML
+    public void onbtnLeave(MouseEvent e) {
+        Button button = (Button)e.getSource();
+        button.setEffect(null);
     }
 }
 

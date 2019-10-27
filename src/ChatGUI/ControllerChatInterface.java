@@ -3,6 +3,7 @@ package ChatGUI;
 import Chat.Chat;
 import Chat.Friend;
 import Chat.Message;
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -12,6 +13,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -29,9 +32,9 @@ public class ControllerChatInterface implements Initializable {
     private ObservableList<Friend> listFriend;
     private ObservableList<Message> inboxList;
     @FXML
-    Button btnAdd;
+    JFXButton btnAdd;
     @FXML
-    Button btnRefresh;
+    JFXButton btnRefresh;
     @FXML
     ListView<Friend> listViewFriend;
     @FXML
@@ -162,5 +165,29 @@ public class ControllerChatInterface implements Initializable {
                 setGraphic(box);
             }
         }
+    }
+    @FXML
+    public void onbtnEnter(MouseEvent e) {
+        Button button = (Button)e.getSource();
+        Glow glowfx = new Glow();
+        glowfx.setLevel(1);
+        //Instantiating the Shadow class
+        DropShadow dropShadow = new DropShadow();
+        //dropShadow.setBlurType(BlurType.GAUSSIAN);
+        dropShadow.setColor(Color.WHITE);
+        dropShadow.setHeight(20);
+        dropShadow.setWidth(20);
+        dropShadow.setRadius(2.5);
+        dropShadow.setSpread(10);
+        button.setEffect(dropShadow);
+    }
+
+
+    @FXML
+    public void onbtnLeave(MouseEvent e) {
+        Button button = (Button)e.getSource();
+        Glow glowfx = new Glow();
+        glowfx.setLevel(0);
+        button.setEffect(null);
     }
 }
