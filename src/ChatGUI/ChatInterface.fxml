@@ -28,7 +28,7 @@
                <children>
                   <Pane prefHeight="59.0" prefWidth="617.0">
                      <children>
-                        <Label fx:id="lblName" layoutX="296.0" layoutY="21.0" prefHeight="17.0" prefWidth="25.0" />
+                        <Label fx:id="lblName" layoutY="27.0" prefHeight="31.0" prefWidth="89.0" />
                      </children>
                   </Pane>
                   <ScrollPane prefHeight="282.0" prefWidth="637.0">

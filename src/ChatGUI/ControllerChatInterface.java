@@ -46,6 +46,7 @@ public class ControllerChatInterface implements Initializable {
     ListView<Friend> listViewFriend;
     @FXML
     Label lblName;
+
     @FXML
     TextField inputChat;
     @FXML
@@ -71,6 +72,9 @@ public class ControllerChatInterface implements Initializable {
         dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
         lblName.setEffect(dropShadow);
         lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
+        lblName.setAlignment(Pos.CENTER);
+        listViewFriend.setBackground(new Background(new BackgroundFill(
+                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
         listViewFriend.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Friend>() {
             @Override
             public void changed(ObservableValue<? extends Friend> observableValue, Friend friend, Friend t1) {
@@ -210,7 +214,8 @@ public class ControllerChatInterface implements Initializable {
         @Override
         protected void updateItem(Message msg, boolean b) {
             super.updateItem(msg, b);
-
+            inbox.setBackground(new Background(new BackgroundFill(
+                    Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
             if (msg == null || b) {
                 setGraphic(null);
             } else {
