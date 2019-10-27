@@ -39,7 +39,7 @@ public class ControllerChatInterface implements Initializable {
     private ObservableList<Friend> listFriend;
     private ObservableList<Message> inboxList;
     @FXML
-    JFXButton btnAdd;
+    JFXButton btnFile;
     @FXML
     JFXButton btnRefresh;
     @FXML
@@ -74,6 +74,12 @@ public class ControllerChatInterface implements Initializable {
                 }
             }
         });
+        btnFile.setOnMouseClicked(event -> {
+            Window stage = ((Node)event.getTarget()).getScene().getWindow();
+            Button button = (Button)event.getSource();
+            FileChooser fil_chooser = new FileChooser();
+            File file = fil_chooser.showOpenDialog(stage);
+        });
     }
 
     @FXML
@@ -102,10 +108,7 @@ public class ControllerChatInterface implements Initializable {
 
     @FXML
     public void onBtnFileClicked(MouseEvent e) {
-        Window stage = ((Node)e.getTarget()).getScene().getWindow();
-        Button button = (Button)e.getSource();
-        FileChooser fil_chooser = new FileChooser();
-        File file = fil_chooser.showOpenDialog(stage);
+
 
     }
 
