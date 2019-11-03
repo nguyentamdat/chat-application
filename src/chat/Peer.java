@@ -1,10 +1,7 @@
-package Chat;
+package chat;
 
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -83,6 +80,7 @@ public class Peer extends Thread {
         String type = msg.getType();
         switch (type) {
             case "bye":
+                send(new Message("bye", Chat.getInstance().getUsername(), name, ""));
                 keepGo = false;
                 break;
             case "msg":
@@ -98,7 +96,7 @@ public class Peer extends Thread {
                 break;
             case "file":
                 String[] msgSep = msg.getMessage().split(":");
-                new Thread(new Download(_socket.getInetAddress(), Integer.parseInt(msgSep[0]), "./" + msgSep[1])).start();
+                new Thread(new Download(_socket.getInetAddress(), Integer.parseInt(msgSep[0]), "D:/" + msgSep[1])).start();
                 inbox.add(msg);
                 Platform.runLater(new Runnable() {
                     @Override
@@ -122,6 +120,10 @@ public class Peer extends Thread {
 
     private boolean isConnected() {
         return _socket.isConnected();
+    }
+
+    public void leaveChat() {
+        send(new Message("bye", Chat.getInstance().getUsername(), name, ""));
     }
 
     private void close() {

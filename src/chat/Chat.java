@@ -1,6 +1,6 @@
-package Chat;
+package chat;
 
-import ChatGUI.ControllerChatInterface;
+import controller.ControllerChatInterface;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,6 +24,7 @@ public class Chat extends Thread {
     private BufferedReader dis;
     private PrintWriter dos;
     private ArrayList<Friend> listFriend;
+    public boolean keepGo = true;
 
     private Chat() {
         peers = new ConcurrentHashMap<>(200);
@@ -204,9 +205,16 @@ public class Chat extends Thread {
         return false;
     }
 
+    public void leaveChat() {
+        dos.println("LOGOUT");
+        for (Peer peer : peers.values()) {
+            peer.leaveChat();
+        }
+    }
+
     @Override
     public void run() {
-        while (true) {
+        while (keepGo) {
             try {
                 Socket socket = selfSocket.accept();
                 Peer p = new Peer(socket);
@@ -216,8 +224,8 @@ public class Chat extends Thread {
             } catch (Exception e) {
                 System.out.println("Error Chat: run()");
             }
-
         }
+        leaveChat();
     }
 }
 

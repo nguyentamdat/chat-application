@@ -1,6 +1,6 @@
-package ChatGUI;
+package chatGUI;
 
-import Chat.Chat;
+import chat.Chat;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,7 +12,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Login.fxml"));
         primaryStage.setTitle("Chat App");
         primaryStage.setScene(new Scene(root, 800, 400));
         primaryStage.show();
@@ -21,5 +21,11 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        System.out.println("Stopping...");
+        Chat.getInstance().keepGo = false;
     }
 }

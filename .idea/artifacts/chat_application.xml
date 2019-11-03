@@ -1,0 +1,25 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="chat-application">
+    <output-path>$PROJECT_DIR$/out/artifacts/chat_application</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="chatGUI.Main" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="chat_application.jar">
+        <element id="module-output" name="chat-application" />
+      </element>
+      <element id="library" level="project" name="com.jfoenix:jfoenix:9.0.9" />
+      <element id="library" level="project" name="commons-io:commons-io:2.6" />
+      <element id="library" level="project" name="lib" />
+      <element id="library" level="project" name="org.apache.commons:commons-lang3:3.9" />
+      <element id="file-copy" path="$MAVEN_REPOSITORY$/org/jetbrains/annotations/17.0.0/annotations-17.0.0.jar" />
+    </root>
+  </artifact>
+</component>

@@ -1,4 +1,4 @@
-package Chat;
+package chat;
 
 public class Friend {
     private String name;

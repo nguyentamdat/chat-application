@@ -1,11 +1,10 @@
-package Chat;
+package chat;
 
 import org.apache.commons.io.IOUtils;
 
 import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Download implements Runnable {
