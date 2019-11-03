@@ -9,10 +9,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
@@ -28,9 +31,11 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -49,7 +54,8 @@ public class ControllerChatInterface implements Initializable {
     TextField inputChat;
     @FXML
     ListView<Message> inbox;
-
+    @FXML
+    JFXButton btnAddFriend;
     private Chat user = Chat.getInstance();
     private ObservableList<Friend> listFriend;
 
@@ -144,7 +150,18 @@ public class ControllerChatInterface implements Initializable {
             er.printStackTrace();
         }
     }
-
+    @FXML
+    public void onAddClicked(MouseEvent e) throws IOException {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/FriendRequest.fxml"));
+            Parent root = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.show();
+        }catch (Exception er) {
+            er.printStackTrace();
+        }
+    }
     @FXML
     public void onbtnEnter(MouseEvent e) {
         Button button = (Button) e.getSource();
