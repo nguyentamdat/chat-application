@@ -1,36 +1,43 @@
 package controller;
 
+import chat.Chat;
 import com.jfoenix.controls.JFXButton;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ControllerFriendRequest implements Initializable {
+public class ControllerRequestedFriend implements Initializable {
     @FXML
-    JFXButton btnAdd, btnCancel;
+    JFXButton btnAccept, btnDeny;
+    @FXML
+    Label lblUsername;
+    public void Setname(Chat chat){
+        lblUsername.setText(chat.getName());
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
     }
     @FXML
-    public void onbtnCancelClicked(MouseEvent e) {
-        Stage stage = (Stage) btnCancel.getScene().getWindow();
+    public void onbtnDenyClicked(MouseEvent e) {
+        Stage stage = (Stage) btnDeny.getScene().getWindow();
         stage.close();
     }
     @FXML
-    public void onbtnAddClicked(MouseEvent e) {
+    public void onbtnAcceptClicked(MouseEvent e) {
 
     }
     @FXML
     public void onbtnEnter(MouseEvent e) {
-        Button button = (Button) e.getSource();
+        javafx.scene.control.Button button = (javafx.scene.control.Button) e.getSource();
         Glow glowfx = new Glow();
         glowfx.setLevel(1);
         //Instantiating the Shadow class
@@ -46,7 +53,7 @@ public class ControllerFriendRequest implements Initializable {
 
     @FXML
     public void onbtnLeave(MouseEvent e) {
-        Button button = (Button) e.getSource();
+        javafx.scene.control.Button button = (javafx.scene.control.Button) e.getSource();
         Glow glowfx = new Glow();
         glowfx.setLevel(0);
         button.setEffect(null);

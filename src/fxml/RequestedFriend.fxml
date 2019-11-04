@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="mainSelect" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #ffafbd , #ffc3a0);;" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerRequestedFriend">
+   <children>
+      <Label layoutX="86.0" layoutY="66.0" text="YOUR FRIEND REQUEST" textFill="#f05151c4">
+         <font>
+            <Font name="Roboto Black" size="30.0" />
+         </font>
+      </Label>
+      <JFXButton fx:id="btnAccept" layoutX="96.0" layoutY="213.0" mnemonicParsing="false" onMouseClicked="#onbtnAcceptClicked" onMouseEntered="#onbtnEnter" onMouseExited="#onbtnLeave" prefHeight="30.0" prefWidth="90.0" text="ACCEPT" textFill="#ff000080">
+         <font>
+            <Font name="Roboto Black" size="15.0" />
+         </font>
+      </JFXButton>
+      <Label layoutX="73.0" layoutY="151.0" text="User Name: " textFill="WHITE">
+         <font>
+            <Font name="Roboto Mono" size="15.0" />
+         </font>
+      </Label>
+      <JFXButton fx:id="btnDeny" layoutX="278.0" layoutY="213.0" mnemonicParsing="false" onMouseClicked="#onbtnDenyClicked" onMouseEntered="#onbtnEnter" onMouseExited="#onbtnLeave" prefWidth="90.0" text="DENY" textFill="#ff000080">
+         <font>
+            <Font name="Roboto Black" size="15.0" />
+         </font>
+      </JFXButton>
+      <Label fx:id="lblUserName" layoutX="167.0" layoutY="150.0" prefHeight="22.0" prefWidth="131.0">
+         <font>
+            <Font name="Roboto Mono Bold" size="15.0" />
+         </font>
+      </Label>
+      <Label layoutX="304.0" layoutY="150.0" prefHeight="22.0" prefWidth="150.0" text="want to connect." textFill="WHITE">
+         <font>
+            <Font name="Roboto Mono" size="15.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

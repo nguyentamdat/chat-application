@@ -41,7 +41,7 @@ import java.util.ResourceBundle;
 
 public class ControllerChatInterface implements Initializable {
     @FXML
-    JFXButton btnFile;
+    JFXButton btnFile, btnExit;
     @FXML
     JFXButton btnRefresh;
     @FXML
@@ -102,6 +102,19 @@ public class ControllerChatInterface implements Initializable {
                 }
             }
         });
+        if(true){
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/RequetedFriend.fxml"));
+                Parent root = (Parent) fxmlLoader.load();
+                ControllerRequestedFriend inputController = fxmlLoader.getController();
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.show();
+
+            }catch (Exception er) {
+                er.printStackTrace();
+            }
+        }
     }
 
     public void setLblName(String name) {
@@ -139,6 +152,10 @@ public class ControllerChatInterface implements Initializable {
         File file = fil_chooser.showOpenDialog(stage);
         String filepath = file.getAbsolutePath();
         user.sendFile(filepath);
+    }
+    @FXML
+    public void onBtnExitClicked(MouseEvent e) {
+
     }
 
     @FXML

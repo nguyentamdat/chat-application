@@ -31,9 +31,14 @@
          <children>
             <VBox prefHeight="400.0" prefWidth="617.0">
                <children>
-                  <Pane prefHeight="59.0" prefWidth="617.0">
+                  <Pane prefHeight="50.0" prefWidth="618.0">
                      <children>
                         <Label fx:id="lblName" layoutY="27.0" prefHeight="31.0" prefWidth="89.0" />
+                        <JFXButton fx:id="btnExit" alignment="CENTER" layoutX="573.0" layoutY="15.0" onMouseClicked="#onBtnExitClicked" prefHeight="27.0" prefWidth="36.0" stylesheets="@Style.css" text="X" textFill="#ff000080">
+                           <font>
+                              <Font name="Arial Bold" size="15.0" />
+                           </font>
+                        </JFXButton>
                      </children>
                   </Pane>
                   <ScrollPane fx:id="Panel" prefHeight="282.0" prefWidth="637.0" style="-fx-background-color: transparent;" stylesheets="@Style.css">
