@@ -204,7 +204,9 @@ public class Chat extends Thread {
                     setCurrent(name);
                 }
                 if (args[0].equalsIgnoreCase("REQUEST")) {
-                    controller.FriendRequest(args[1]);
+                    Platform.runLater(() -> {
+                        controller.FriendRequest(args[1]);
+                    });
                 }
                 if (args[0].equalsIgnoreCase("LIST")) {
                     String[] f;

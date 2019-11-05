@@ -4,13 +4,12 @@ import chat.Chat;
 import com.jfoenix.controls.JFXButton;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
-import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -18,13 +17,14 @@ public class ControllerRequestedFriend implements Initializable {
     @FXML
     JFXButton btnAccept, btnDeny;
     @FXML
-    Label lblUsername;
-    public void Setname(String name){
-        lblUsername.setText(name);
-    }
+    Label lblReqName;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+    }
+    public void Setname(String name){
+        lblReqName.setText(name);
     }
     @FXML
     public void onbtnDenyClicked(MouseEvent e) {
@@ -34,7 +34,9 @@ public class ControllerRequestedFriend implements Initializable {
     @FXML
     public void onbtnAcceptClicked(MouseEvent e) {
         Chat instance = Chat.getInstance();
-        instance.sendServer("ACCEPTED " + lblUsername.getText());
+        instance.sendServer("ACCEPTED " + lblReqName.getText());
+        Stage stage = (Stage) btnDeny.getScene().getWindow();
+        stage.close();
     }
     @FXML
     public void onbtnEnter(MouseEvent e) {

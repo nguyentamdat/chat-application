@@ -27,7 +27,7 @@
             <Font name="Roboto Black" size="15.0" />
          </font>
       </JFXButton>
-      <Label fx:id="lblUserName" layoutX="167.0" layoutY="150.0" prefHeight="22.0" prefWidth="131.0">
+      <Label fx:id="lblReqName" layoutX="167.0" layoutY="150.0" prefHeight="22.0" prefWidth="131.0">
          <font>
             <Font name="Roboto Mono Bold" size="15.0" />
          </font>

@@ -122,13 +122,13 @@ public class ControllerChatInterface implements Initializable {
 
     public void FriendRequest(String name) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/RequetedFriend.fxml"));
-            Parent root = fxmlLoader.load();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/RequestedFriend.fxml"));
+            Parent root = (Parent) fxmlLoader.load();
             ControllerRequestedFriend inputController = fxmlLoader.getController();
-            inputController.Setname(name);
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
             stage.show();
+            inputController.Setname(name);
         } catch (Exception er) {
             er.printStackTrace();
         }
