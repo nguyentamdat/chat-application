@@ -17,7 +17,7 @@ public class Peer extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     public String name;
-    private boolean keepGo = true;
+    public boolean keepGo = true;
 
     public Peer(Socket socket) {
         _socket = socket;
@@ -80,7 +80,7 @@ public class Peer extends Thread {
         String type = msg.getType();
         switch (type) {
             case "bye":
-                send(new Message("bye", Chat.getInstance().getUsername(), name, ""));
+                Chat.getInstance().peers.remove(msg.getTo());
                 keepGo = false;
                 break;
             case "msg":

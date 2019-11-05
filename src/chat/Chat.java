@@ -23,7 +23,7 @@ public class Chat extends Thread {
     private Socket serverSocket;
     private BufferedReader dis;
     private PrintWriter dos;
-    private ArrayList<Friend> listFriend;
+    public ObservableList<Friend> listFriend = FXCollections.observableArrayList();
     public boolean keepGo = true;
 
     private Chat() {
@@ -121,7 +121,7 @@ public class Chat extends Thread {
         dos = new PrintWriter(server.getOutputStream(), true);
         //endregion
         //region start local server as peer
-        selfSocket = new ServerSocket(0);
+        if (selfSocket == null) selfSocket = new ServerSocket(0);
         int selfPort = selfSocket.getLocalPort();
         System.out.println("Start peer on port: " + selfPort + " at: " + selfSocket.getInetAddress());
         //endregion
@@ -134,7 +134,6 @@ public class Chat extends Thread {
         System.out.println(res);
         if (res.equalsIgnoreCase("true")) {
             System.out.println("You can chat now!");
-            listFriend = refreshListFriend();
             return true;
         }
         System.out.println("Duplicate username, enter another username!");
@@ -142,33 +141,20 @@ public class Chat extends Thread {
         //endregion
     }
 
-    public ArrayList<Friend> getListFriend() {
-        listFriend = refreshListFriend();
-        return listFriend;
-    }
-
-    private ArrayList<Friend> refreshListFriend() {
-        ArrayList<Friend> list = new ArrayList<Friend>();
-        dos.println("GET");
-        try {
-            String res = dis.readLine();
-            if (res.equalsIgnoreCase("LIST")) {
-                String[] args;
-                while (!(res = dis.readLine()).equalsIgnoreCase("END")) {
-                    args = res.split(" ");
-                    list.add(new Friend(args[0], args[1].equalsIgnoreCase("true")));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return list;
+    public void refreshListFriend() {
+        sendServer("GET");
     }
 
     public void sendMsg(String msg) {
         System.out.println("Sending message: " + msg);
         current.send(new Message("msg", username, current.name, msg));
         System.out.println("Sent");
+    }
+
+    public void byeMsg() {
+        current.send(new Message("bye", username, current.name, ""));
+        current.keepGo = false;
+        peers.remove(current.name);
     }
 
     public void sendFile(String filepath) {
@@ -187,22 +173,7 @@ public class Chat extends Thread {
 
     private boolean startWith(String name) {
         dos.println("GET " + name);
-        try {
-            String[] args = dis.readLine().split("/");
-            if (args[0].equalsIgnoreCase("FOUND")) {
-                String[] ip_port = args[1].split(":");
-                Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
-                Peer p = new Peer(socket);
-                addPeer(name, p);
-                p.setDaemon(true);
-                p.start();
-                p.send(new Message("start", username, (p.name = name), ""));
-                return setCurrent(name);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+        return true;
     }
 
     public void leaveChat() {
@@ -212,8 +183,56 @@ public class Chat extends Thread {
         }
     }
 
+    public void addFriend(String name) {
+        sendServer("ADD " + name);
+    }
+
+    private void processMsgFromServer() {
+        while (true) {
+            try {
+                String[] args = dis.readLine().split(" ");
+                System.out.println("From server" + args[0]);
+                if (args[0].equalsIgnoreCase("FOUND")) {
+                    String name = args[1];
+                    String[] ip_port = args[2].replaceAll("/","").split(":");
+                    Socket socket = new Socket(ip_port[0], Integer.parseInt(ip_port[1]));
+                    Peer p = new Peer(socket);
+                    addPeer(name, p);
+                    p.setDaemon(true);
+                    p.start();
+                    p.send(new Message("start", username, (p.name = name), ""));
+                    setCurrent(name);
+                }
+                if (args[0].equalsIgnoreCase("REQUEST")) {
+                    controller.FriendRequest(args[1]);
+                }
+                if (args[0].equalsIgnoreCase("LIST")) {
+                    String[] f;
+                    Platform.runLater(() -> {
+                        listFriend.clear();
+                    });
+                    while (!(f = dis.readLine().split(" "))[0].equalsIgnoreCase("END")) {
+                        String[] finalF = f;
+                        Platform.runLater(() -> {
+                            listFriend.add(new Friend(finalF[0], finalF[1].equalsIgnoreCase("true")));
+                        });
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void sendServer(String msg) {
+        dos.println(msg);
+    }
+
     @Override
     public void run() {
+        new Thread(() -> {
+            processMsgFromServer();
+        }).start();
         while (keepGo) {
             try {
                 Socket socket = selfSocket.accept();

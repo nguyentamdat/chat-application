@@ -57,14 +57,12 @@ public class ControllerChatInterface implements Initializable {
     @FXML
     JFXButton btnAddFriend;
     private Chat user = Chat.getInstance();
-    private ObservableList<Friend> listFriend;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         listViewFriend.setCellFactory(lv -> new FriendCell());
-        listFriend = FXCollections.observableList(user.getListFriend());
-        listViewFriend.setItems(listFriend);
+        listViewFriend.setItems(user.listFriend);
         inbox.setItems(user.getListMsg());
         inbox.setCellFactory(lv -> new InboxCell());
         lblName.setFont(Font.font("Roboto Black", FontWeight.BOLD, 20));
@@ -74,18 +72,8 @@ public class ControllerChatInterface implements Initializable {
                 if (friend == t1) return;
                 if (t1 != null) {
                     String name = t1.getName();
+                    setLblName(name);
                     System.out.println("Selection change to " + name);
-                    lblName.setBackground(new Background(new BackgroundFill(
-                            Color.rgb(255,205,172), CornerRadii.EMPTY, Insets.EMPTY)));
-                    DropShadow dropShadow = new DropShadow();
-                    dropShadow.setRadius(5.0);
-                    dropShadow.setOffsetX(3.0);
-                    dropShadow.setOffsetY(3.0);
-                    dropShadow.setColor(Color.gray(0.865));
-                    lblName.setEffect(dropShadow);
-                    lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
-                    lblName.setAlignment(Pos.CENTER);
-                    lblName.setText(name);
                     if (t1.isStatus()) {
                         System.out.println("Starting chatting");
                         if (!user.chatWith(name)) {
@@ -102,22 +90,20 @@ public class ControllerChatInterface implements Initializable {
                 }
             }
         });
-        if(true){
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/RequetedFriend.fxml"));
-                Parent root = (Parent) fxmlLoader.load();
-                ControllerRequestedFriend inputController = fxmlLoader.getController();
-                Stage stage = new Stage();
-                stage.setScene(new Scene(root));
-                stage.show();
-
-            }catch (Exception er) {
-                er.printStackTrace();
-            }
-        }
+        user.refreshListFriend();
     }
 
     public void setLblName(String name) {
+        lblName.setBackground(new Background(new BackgroundFill(
+                Color.rgb(255,205,172), CornerRadii.EMPTY, Insets.EMPTY)));
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(5.0);
+        dropShadow.setOffsetX(3.0);
+        dropShadow.setOffsetY(3.0);
+        dropShadow.setColor(Color.gray(0.865));
+        lblName.setEffect(dropShadow);
+        lblName.setTextFill(Color.rgb(255, 0, 0, 0.5));
+        lblName.setAlignment(Pos.CENTER);
         lblName.setText(name);
     }
 
@@ -131,6 +117,20 @@ public class ControllerChatInterface implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void FriendRequest(String name) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/RequetedFriend.fxml"));
+            Parent root = fxmlLoader.load();
+            ControllerRequestedFriend inputController = fxmlLoader.getController();
+            inputController.Setname(name);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception er) {
+            er.printStackTrace();
         }
     }
 
@@ -155,14 +155,14 @@ public class ControllerChatInterface implements Initializable {
     }
     @FXML
     public void onBtnExitClicked(MouseEvent e) {
-
+        System.out.println("Bye chat: " + lblName.getText());
+        user.byeMsg();
     }
 
     @FXML
     public void onBtnRefreshClicked(MouseEvent e) {
         try {
-            listFriend.clear();
-            listFriend.addAll(user.getListFriend());
+            user.refreshListFriend();
         } catch (Exception er) {
             er.printStackTrace();
         }
@@ -223,7 +223,6 @@ public class ControllerChatInterface implements Initializable {
             } else {
                 lblName.setText(friend.getName());
                 lblName.setFont(Font.font("Roboto", 14));
-                lblName.setTextFill(Color.WHITE);
                 state.setFill(friend.isStatus() ? Color.GREEN : Color.RED);
                 box.setBackground(new Background(new BackgroundFill(
                         Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));

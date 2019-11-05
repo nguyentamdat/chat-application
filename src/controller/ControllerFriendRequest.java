@@ -1,9 +1,11 @@
 package controller;
 
+import chat.Chat;
 import com.jfoenix.controls.JFXButton;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
@@ -15,6 +17,8 @@ import java.util.ResourceBundle;
 public class ControllerFriendRequest implements Initializable {
     @FXML
     JFXButton btnAdd, btnCancel;
+    @FXML
+    TextField usernameTF;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -26,7 +30,8 @@ public class ControllerFriendRequest implements Initializable {
     }
     @FXML
     public void onbtnAddClicked(MouseEvent e) {
-
+        System.out.println("Add friend: " + usernameTF.getText());
+        Chat.getInstance().addFriend(usernameTF.getText());
     }
     @FXML
     public void onbtnEnter(MouseEvent e) {

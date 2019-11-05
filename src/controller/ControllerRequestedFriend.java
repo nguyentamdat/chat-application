@@ -19,8 +19,8 @@ public class ControllerRequestedFriend implements Initializable {
     JFXButton btnAccept, btnDeny;
     @FXML
     Label lblUsername;
-    public void Setname(Chat chat){
-        lblUsername.setText(chat.getName());
+    public void Setname(String name){
+        lblUsername.setText(name);
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -33,7 +33,8 @@ public class ControllerRequestedFriend implements Initializable {
     }
     @FXML
     public void onbtnAcceptClicked(MouseEvent e) {
-
+        Chat instance = Chat.getInstance();
+        instance.sendServer("ACCEPTED " + lblUsername.getText());
     }
     @FXML
     public void onbtnEnter(MouseEvent e) {
