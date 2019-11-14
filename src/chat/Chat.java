@@ -196,8 +196,9 @@ public class Chat extends Thread {
     private void processMsgFromServer() {
         while (true) {
             try {
-                String[] args = dis.readLine().split(" ");
-                System.out.println("From server" + args[0]);
+                String arg = dis.readLine();
+                String[] args = arg.split(" ");
+                System.out.println("From server " + arg);
                 if (args[0].equalsIgnoreCase("FOUND")) {
                     String name = args[1];
                     String[] ip_port = args[2].replaceAll("/","").split(":");
@@ -228,17 +229,16 @@ public class Chat extends Thread {
                 }
                 if (args[0].equalsIgnoreCase("MSG")) {
                     Platform.runLater(() -> {
-                        cAdmin.addMsg(args[2]);
+                        cAdmin.addMsg(arg.replace("MSG ",""));
                     });
                 }
                 if (args[0].equalsIgnoreCase("CHATADMIN")) {
                     Platform.runLater(() -> {
-                        Stage stage = new Stage();
-                        FXMLLoader fxml = new FXMLLoader(getClass().getResource("../fxml/ChatAdmin.fxml"));
-                        Parent root = null;
-                        cAdmin = fxml.getController();
                         try {
-                            root = (Parent) fxml.load();
+                            Stage stage = new Stage();
+                            FXMLLoader fxml = new FXMLLoader(getClass().getResource("../fxml/ChatAdmin.fxml"));
+                            Parent root = (Parent) fxml.load();
+                            cAdmin = fxml.getController();
                             stage.setScene(new Scene(root));
                             stage.show();
                         } catch (IOException e) {

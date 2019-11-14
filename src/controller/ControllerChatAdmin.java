@@ -7,6 +7,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -20,6 +21,7 @@ public class ControllerChatAdmin implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         msg.setDisable(true);
+        msg.setWrapText(true);
     }
 
     @FXML

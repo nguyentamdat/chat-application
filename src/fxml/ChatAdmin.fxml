@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="controller.ControllerChatAdmin"
-            prefHeight="400.0" prefWidth="600.0">
-    <TextArea fx:id="msg"></TextArea>
-    <TextField fx:id="input" onKeyPressed="#onEnter"></TextField>
+<AnchorPane prefHeight="266.0" prefWidth="324.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerChatAdmin">
+    <TextArea fx:id="msg" layoutX="27.0" layoutY="18.0" prefHeight="181.0" prefWidth="270.0" />
+    <TextField fx:id="input" layoutX="27.0" layoutY="222.0" onKeyPressed="#onEnter" prefHeight="26.0" prefWidth="270.0" />
 </AnchorPane>
