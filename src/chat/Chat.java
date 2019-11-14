@@ -1,9 +1,14 @@
 package chat;
 
+import controller.ControllerChatAdmin;
 import controller.ControllerChatInterface;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -17,6 +22,7 @@ public class Chat extends Thread {
     public volatile ObservableList<Message> listMsg = FXCollections.observableArrayList();
     public volatile Peer current;
     public ControllerChatInterface controller;
+    public ControllerChatAdmin cAdmin;
     private int port;
     private String servername, username;
     private ServerSocket selfSocket;
@@ -220,6 +226,26 @@ public class Chat extends Thread {
                         });
                     }
                 }
+                if (args[0].equalsIgnoreCase("MSG")) {
+                    Platform.runLater(() -> {
+                        cAdmin.addMsg(args[2]);
+                    });
+                }
+                if (args[0].equalsIgnoreCase("CHATADMIN")) {
+                    Platform.runLater(() -> {
+                        Stage stage = new Stage();
+                        FXMLLoader fxml = new FXMLLoader(getClass().getResource("../fxml/ChatAdmin.fxml"));
+                        Parent root = null;
+                        cAdmin = fxml.getController();
+                        try {
+                            root = (Parent) fxml.load();
+                            stage.setScene(new Scene(root));
+                            stage.show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -232,9 +258,7 @@ public class Chat extends Thread {
 
     @Override
     public void run() {
-        new Thread(() -> {
-            processMsgFromServer();
-        }).start();
+        new Thread(this::processMsgFromServer).start();
         while (keepGo) {
             try {
                 Socket socket = selfSocket.accept();
